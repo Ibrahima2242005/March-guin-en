@@ -24,13 +24,12 @@
       window.dbPush = push;
       window.dbOnValue = onValue;
 
-      // Charger les annonces et profils en temps réel dès le chargement
+      // Charger les données en temps réel dès le démarrage
       document.addEventListener("DOMContentLoaded", () => {
-          chargerDonneesTempsReel();
+          chargerAnnoncesTempsReel();
       });
 
-      window.chargerDonneesTempsReel = function() {
-          // Écouter les annonces en temps réel
+      window.chargerAnnoncesTempsReel = function() {
           const annoncesRef = window.dbRef(window.db, 'annonces');
           window.dbOnValue(annoncesRef, (snapshot) => {
               const data = snapshot.val();
@@ -41,13 +40,17 @@
               if (data) {
                   Object.keys(data).forEach((key) => {
                       const annonce = data[key];
+                      let avatarHtml = annonce.avatar ? 
+                          `<img src="${annonce.avatar}" class="avatar-img" style="width:42px; height:42px; border-radius:50%; object-fit:cover;">` : 
+                          `<div class="avatar">${annonce.vendeur ? annonce.vendeur.charAt(0).toUpperCase() : 'U'}</div>`;
+
                       feedContainer.innerHTML += `
                           <div class="feed-card">
                               <div class="feed-header">
-                                  <div class="avatar">${annonce.vendeur ? annonce.vendeur.charAt(0).toUpperCase() : 'U'}</div>
+                                  ${avatarHtml}
                                   <div class="feed-user-info">
                                      <h4>${annonce.vendeur || 'Utilisateur'}</h4>
-                                     <span>Guinée</span>
+                                     <span>📍 ${annonce.location || 'Guinée'}</span>
                                   </div>
                               </div>
                               <div class="feed-body">
@@ -59,23 +62,20 @@
                       `;
                   });
               } else {
-                  feedContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 30px;">Aucune annonce pour le moment.</p>';
+                  feedContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 30px;">Aucune annonce pour le moment. Soyez le premier à publier !</p>';
               }
           });
       };
 
-      window.publierAnnonceFirebase = function(titre, description, prix, vendeurNom) {
+      window.publierAnnonceFirebase = function(annonceData) {
           const annoncesRef = window.dbRef(window.db, 'annonces');
           window.dbPush(annoncesRef, {
-              titre: titre,
-              description: description,
-              prix: prix,
-              vendeur: vendeurNom,
+              ...annonceData,
               date: Date.now()
           }).then(() => {
-              alert("Annonce publiée et synchronisée en temps réel !");
+              alert("Annonce publiée et synchronisée avec succès !");
           }).catch((error) => {
-              alert("Erreur : " + error.message);
+              alert("Erreur lors de la publication : " + error.message);
           });
       };
     </script>
@@ -143,7 +143,6 @@
         header h1 {
             font-size: 19px;
             font-weight: 700;
-            letter-spacing: -0.4px;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -182,7 +181,6 @@
             background: none;
             border: none;
             flex: 1;
-            transition: transform 0.2s, color 0.2s;
         }
 
         .nav-item.active {
@@ -203,18 +201,8 @@
             margin: 0 auto;
         }
 
-        .tab-content {
-            display: none;
-            opacity: 0;
-            transform: scale(0.98);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-            opacity: 1;
-            transform: scale(1);
-        }
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { display: block; opacity: 1; }
 
         .section-title {
             display: flex;
@@ -223,11 +211,7 @@
             margin-bottom: 18px;
         }
 
-        h2 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+        h2 { font-size: 20px; font-weight: 700; }
 
         .btn-main {
             background: var(--primary);
@@ -257,19 +241,8 @@
             text-align: center;
             box-shadow: var(--shadow-glass);
         }
-
-        .stat-card h4 {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .stat-card span {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary);
-        }
+        .stat-card h4 { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; }
+        .stat-card span { font-size: 16px; font-weight: 700; color: var(--primary); }
 
         .feed-card {
             background: var(--bg-glass-card);
@@ -331,6 +304,7 @@
             font-size: 34px;
             font-weight: bold;
             margin: 0 auto 12px auto;
+            object-fit: cover;
         }
 
         .settings-section {
@@ -341,7 +315,6 @@
             margin-bottom: 18px;
             border: 1px solid var(--border-glass);
         }
-
         .settings-item {
             display: flex;
             justify-content: space-between;
@@ -351,13 +324,8 @@
             border-bottom: 1px solid var(--border-glass);
         }
 
-        .settings-item:last-child { border-bottom: none; }
-
         .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
+            position: relative; display: inline-block; width: 50px; height: 28px;
         }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -381,24 +349,18 @@
             align-items: flex-end;
             z-index: 2000;
         }
-
         .modal-content {
             background: var(--bg-glass-card);
             backdrop-filter: blur(35px);
             color: var(--text-main);
-            width: 100%;
-            max-width: 520px;
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
-            padding: 24px;
-            max-height: 92vh;
-            overflow-y: auto;
+            width: 100%; max-width: 520px;
+            border-top-left-radius: 30px; border-top-right-radius: 30px;
+            padding: 24px; max-height: 92vh; overflow-y: auto;
             border-top: 1px solid var(--border-glass);
         }
-
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%; padding: 12px 14px; border: 1px solid var(--border-glass);
             background: rgba(255, 255, 255, 0.2); color: var(--text-main); border-radius: 12px; font-size: 14px; outline: none;
         }
@@ -409,7 +371,8 @@
     <header>
         <h1>Marché Guinée</h1>
         <div class="header-actions">
-            <button class="btn-main" onclick="openModal()" style="padding: 6px 12px; font-size: 12px;">+ Publier</button>
+            <button class="btn-main" onclick="openModal('pubModal')" style="padding: 6px 12px; font-size: 12px;">+ Publier</button>
+            <button class="btn-main" onclick="openModal('authModal')" style="padding: 6px 12px; font-size: 12px; background: var(--accent);">Compte</button>
         </div>
     </header>
 
@@ -444,10 +407,10 @@
         </div>
 
         <div id="tab-profile" class="tab-content">
-            <div class="profile-box">
-                <div class="profile-avatar-large">M</div>
-                <h3>Mon Profil</h3>
-                <p style="font-size:13px; color:var(--text-secondary); margin-top:5px;">Connecté à Marché Guinée</p>
+            <div class="profile-box" id="profileBoxContent">
+                <div class="profile-avatar-large" id="profileAvatarDisplay">M</div>
+                <h3 id="profileNameDisplay">Mon Profil</h3>
+                <p style="font-size:13px; color:var(--text-secondary); margin-top:5px;" id="profileEmailDisplay">Connectez-vous pour voir vos informations</p>
             </div>
             <div class="settings-section">
                 <h3>⚙️ Paramètres</h3>
@@ -478,11 +441,19 @@
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3>Publier une annonce</h3>
-                <button onclick="closeModal()" style="background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-main);">✕</button>
+                <button onclick="closeModal('pubModal')" style="background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-main);">✕</button>
             </div>
             <div class="form-group">
                 <label>Votre Nom (Vendeur)</label>
                 <input type="text" id="inputVendeur" placeholder="Ex: Ibrahima">
+            </div>
+            <div class="form-group">
+                <label>Lien de votre photo de profil (Optionnel)</label>
+                <input type="text" id="inputAvatar" placeholder="Ex: https://... (URL de votre photo)">
+            </div>
+            <div class="form-group">
+                <label>Ville / Localisation</label>
+                <input type="text" id="inputLocation" placeholder="Ex: Conakry, Madina">
             </div>
             <div class="form-group">
                 <label>Titre de l'article</label>
@@ -498,7 +469,36 @@
             </div>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn-main" onclick="validerPublication()" style="flex: 1;">Publier</button>
-                <button class="btn-main" onclick="closeModal()" style="flex: 1; background: #8e8e93;">Annuler</button>
+                <button class="btn-main" onclick="closeModal('pubModal')" style="flex: 1; background: #8e8e93;">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Créer un compte / Se connecter</h3>
+                <button onclick="closeModal('authModal')" style="background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-main);">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Nom complet</label>
+                <input type="text" id="authName" placeholder="Ex: Mariama Barry">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="authEmail" placeholder="Ex: mariama@gmail.com">
+            </div>
+            <div class="form-group">
+                <label>Lien de votre Photo de Profil (URL)</label>
+                <input type="text" id="authPhoto" placeholder="Ex: https://image.com/mon-visage.jpg">
+            </div>
+            <div class="form-group">
+                <label>Ville</label>
+                <input type="text" id="authLocation" placeholder="Ex: Conakry">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-main" onclick="validerInscription()" style="flex: 1;">Enregistrer mon profil</button>
+                <button class="btn-main" onclick="closeModal('authModal')" style="flex: 1; background: #8e8e93;">Fermer</button>
             </div>
         </div>
     </div>
@@ -512,31 +512,57 @@
             if(element) element.classList.add('active');
         }
 
-        function openModal() {
-            document.getElementById('pubModal').style.display = 'flex';
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
         }
-        function closeModal() {
-            document.getElementById('pubModal').style.display = 'none';
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
 
         function validerPublication() {
             const vendeur = document.getElementById('inputVendeur').value.trim();
+            const avatar = document.getElementById('inputAvatar').value.trim();
+            const location = document.getElementById('inputLocation').value.trim() || 'Guinée';
             const titre = document.getElementById('inputTitre').value.trim();
             const desc = document.getElementById('inputDesc').value.trim();
             const prix = document.getElementById('inputPrix').value.trim();
 
             if(!vendeur || !titre || !prix) {
-                alert("Veuillez remplir au moins le nom, le titre et le prix !");
+                alert("Veuillez remplir au moins votre nom, le titre et le prix !");
                 return;
             }
 
-            window.publierAnnonceFirebase(titre, desc, prix, vendeur);
-            closeModal();
+            window.publierAnnonceFirebase({ vendeur, avatar, location, titre, description: desc, prix });
+            closeModal('pubModal');
 
-            document.getElementById('inputVendeur').value = '';
             document.getElementById('inputTitre').value = '';
             document.getElementById('inputDesc').value = '';
             document.getElementById('inputPrix').value = '';
+        }
+
+        function validerInscription() {
+            const name = document.getElementById('authName').value.trim();
+            const email = document.getElementById('authEmail').value.trim();
+            const photo = document.getElementById('authPhoto').value.trim();
+            const location = document.getElementById('authLocation').value.trim() || 'Guinée';
+
+            if(!name || !email) {
+                alert("Veuillez remplir votre nom et votre email !");
+                return;
+            }
+
+            // Mettre à jour l'affichage du profil local
+            document.getElementById('profileNameDisplay').innerText = name;
+            document.getElementById('profileEmailDisplay').innerText = email + " (" + location + ")";
+            
+            if(photo) {
+                document.getElementById('profileAvatarDisplay').outerHTML = `<img src="${photo}" class="profile-avatar-large" id="profileAvatarDisplay">`;
+            } else {
+                document.getElementById('profileAvatarDisplay').innerText = name.charAt(0).toUpperCase();
+            }
+
+            alert("Compte enregistré avec succès !");
+            closeModal('authModal');
         }
     </script>
 </body>
