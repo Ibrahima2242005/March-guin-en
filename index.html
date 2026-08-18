@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkUp - Marché Guinéen</title>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -11,13 +12,12 @@
         :root {
             --primary: #1b4d3e;
             --primary-light: #2c6b56;
-            --accent: #d97706;
-            --background: #f4f6f5;
+            --background: #f8f9fa;
             --surface: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #4b5563;
-            --border: #e5e7eb;
-            --radius: 12px;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --radius: 8px;
         }
 
         * {
@@ -30,7 +30,7 @@
         body {
             background-color: var(--background);
             color: var(--text-main);
-            padding-bottom: 75px;
+            padding-bottom: 70px;
         }
 
         header {
@@ -43,12 +43,11 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         header h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.2rem;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
@@ -71,36 +70,32 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 20px;
+            padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         input, textarea, select {
             width: 100%;
-            padding: 12px 14px;
-            margin-bottom: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
             border: 1px solid var(--border);
             border-radius: var(--radius);
             font-size: 0.95rem;
             outline: none;
-            background-color: #fafafa;
-            transition: border-color 0.2s;
         }
 
         input:focus, textarea:focus {
             border-color: var(--primary);
-            background-color: #fff;
         }
 
         button {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 14px 20px;
+            padding: 12px 20px;
             border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 500;
             cursor: pointer;
             width: 100%;
             transition: background-color 0.2s;
@@ -121,26 +116,25 @@
             background-color: rgba(27, 77, 62, 0.05);
         }
 
-        /* Fil d'actualité / Publications */
+        /* Fil d'actualité / Produits */
         .post-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             margin-bottom: 16px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .post-header {
             display: flex;
             align-items: center;
-            padding: 14px 16px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border);
         }
 
         .avatar {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background-color: var(--border);
             display: flex;
@@ -150,7 +144,6 @@
             color: var(--text-muted);
             margin-right: 12px;
             overflow: hidden;
-            border: 1px solid var(--border);
         }
 
         .avatar img {
@@ -160,9 +153,8 @@
         }
 
         .post-user-info .name {
-            font-weight: 700;
+            font-weight: 600;
             font-size: 0.95rem;
-            color: var(--text-main);
         }
 
         .post-user-info .time {
@@ -172,8 +164,8 @@
 
         .post-image {
             width: 100%;
-            max-height: 400px;
-            object-fit: cover;
+            max-height: 350px;
+            object-type: cover;
             background-color: #000;
         }
 
@@ -182,31 +174,25 @@
         }
 
         .post-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
         .post-price {
             font-size: 1.1rem;
             font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 10px;
+            color: var(--primary);
+            margin-bottom: 8px;
         }
 
         .post-desc {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            margin-bottom: 16px;
-            line-height: 1.4;
+            margin-bottom: 12px;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* Navigation Basse (Style E-commerce pro, sans emojis) */
+        /* Navigation Basse */
         nav {
             position: fixed;
             bottom: 0;
@@ -216,27 +202,24 @@
             border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-around;
-            padding: 8px 0;
-            z-index: 1000;
-            box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
+            padding: 10px 0;
+            z-index: 100;
         }
 
         nav button {
             background: none;
             color: var(--text-muted);
             border: none;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 500;
             cursor: pointer;
-            padding: 4px 0;
+            padding: 0;
             width: auto;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: color 0.2s;
         }
 
         nav button.active {
             color: var(--primary);
+            font-weight: 600;
         }
 
         /* Conditions d'utilisation */
@@ -247,148 +230,132 @@
             margin-bottom: 16px;
             font-size: 0.85rem;
             color: var(--text-muted);
-            line-height: 1.4;
         }
 
         .terms-container input {
             width: auto;
             margin-bottom: 0;
-            margin-top: 3px;
+            margin-top: 2px;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>LinkUp Marché</h1>
-        <div id="header-user-status" style="font-size: 0.85rem; font-weight: 500;"></div>
+        <h1 id="header-title">LinkUp</h1>
+        <div id="header-user"></div>
     </header>
 
     <div class="container">
+        <!-- VUE ACCUEIL / FIL D'ACTUALITÉ -->
         <div id="view-accueil" class="view active">
             <div id="feed-container">
-                </div>
+                <!-- Les publications s'afficheront dynamiquement ici -->
+            </div>
         </div>
 
+        <!-- VUE PUBLIER / VENDRE -->
         <div id="view-vendre" class="view">
-            <div class="card" id="sell-card-content">
-                </div>
+            <div class="card">
+                <h2 style="font-size: 1.1rem; margin-bottom: 16px; font-weight: 600;">Nouvelle publication</h2>
+                <form id="post-form">
+                    <input type="text" id="product-title" placeholder="Titre du produit ou service" required>
+                    <input type="text" id="product-price" placeholder="Prix (ex: 150 000 GNF)" required>
+                    <textarea id="product-desc" rows="4" placeholder="Description détaillée..." required></textarea>
+                    <input type="file" id="product-image" accept="image/*" required>
+                    <button type="submit">Publier sur le fil</button>
+                </form>
+            </div>
         </div>
 
+        <!-- VUE PROFIL & PARAMÈTRES -->
         <div id="view-profil" class="view">
-            <div id="auth-container" class="card" style="display: none;">
-                </div>
+            <div id="auth-container" class="card">
+                <!-- Formulaire Connexion / Inscription géré dynamiquement -->
+            </div>
             <div id="profile-settings" class="card" style="display: none;">
-                <h2 style="font-size: 1.15rem; margin-bottom: 16px; font-weight: 700;">Paramètres du compte</h2>
-                
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div class="avatar" style="width: 80px; height: 80px; margin: 0 auto 10px auto; font-size: 1.5rem;" id="profile-avatar-preview">U</div>
-                    <input type="file" id="avatar-file-input" accept="image/*" style="display: none;" onchange="updateProfileAvatar(this)">
-                    <button class="btn-secondary" style="width: auto; padding: 6px 12px; font-size: 0.85rem;" onclick="document.getElementById('avatar-file-input').click()">Changer la photo</button>
-                </div>
-
+                <h2 style="font-size: 1.1rem; margin-bottom: 16px; font-weight: 600;">Paramètres du profil</h2>
                 <form id="profile-form">
-                    <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Nom complet</label>
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Nom complet</label>
                     <input type="text" id="profile-name" required>
-                    
-                    <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Numéro de téléphone</label>
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Numéro de téléphone</label>
                     <input type="text" id="profile-phone" placeholder="Ex: +224..." required>
-                    
-                    <button type="submit">Enregistrer les modifications</button>
+                    <button type="submit">Mettre à jour</button>
                 </form>
-                <button class="btn-secondary" id="logout-btn" style="margin-top: 16px; border-color: #dc2626; color: #dc2626;">Se déconnecter</button>
+                <button class="btn-secondary" id="logout-btn" style="margin-top: 16px;">Se déconnecter</button>
             </div>
         </div>
     </div>
 
+    <!-- NAVIGATION -->
     <nav>
         <button onclick="switchView('accueil')" id="nav-accueil" class="active">Accueil</button>
-        <button onclick="switchView('vendre')" id="nav-vendre">Vendre</button>
-        <button onclick="switchView('profil')" id="nav-profil">Mon Compte</button>
+        <button onclick="switchView('vendre')" id="nav-vendre">Publier</button>
+        <button onclick="switchView('profil')" id="nav-profil">Profil</button>
     </nav>
 
     <script>
-        // CONFIGURATION FIREBASE
+        // CONFIGURATION FIREBASE (À remplacer par vos propres identifiants Firebase)
         const firebaseConfig = {
-            apiKey: "AIzaSyCm-WVeJZKE6azk9AIWYfl7JAzCAOYHbj4",
-            authDomain: "guinee-d2f43.firebaseapp.com",
-            databaseURL: "https://guinee-d2f43-default-rtdb.firebaseio.com",
-            projectId: "guinee-d2f43",
-            storageBucket: "guinee-d2f43.firebasestorage.app",
-            messagingSenderId: "607430934523",
-            appId: "1:607430934523:web:default"
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_AUTH_DOMAIN",
+            projectId: "VOTRE_PROJECT_ID",
+            storageBucket: "VOTRE_STORAGE_BUCKET",
+            messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
+            appId: "VOTRE_APP_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Gestion de la navigation entre les vues
+        // Gestion de la navigation
         function switchView(viewName) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
             
             document.getElementById(`view-${viewName}`).classList.add('active');
             document.getElementById(`nav-${viewName}`).classList.add('active');
-            
-            if (viewName === 'vendre') {
-                checkAuthForSelling();
-            }
             window.scrollTo(0, 0);
         }
 
-        // Surveillance de l'état de l'utilisateur connecté
+        // Gestion de l'authentification et affichage dynamique
         auth.onAuthStateChanged(async (user) => {
             const authContainer = document.getElementById('auth-container');
             const profileSettings = document.getElementById('profile-settings');
-            const headerStatus = document.getElementById('header-user-status');
             
             if (user) {
                 authContainer.style.display = 'none';
                 profileSettings.style.display = 'block';
-                
-                // Charger les données utilisateur depuis Firestore
+
+                // Charger les infos du profil Firestore
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 if (userDoc.exists) {
                     const data = userDoc.data();
                     document.getElementById('profile-name').value = data.name || '';
                     document.getElementById('profile-phone').value = data.phone || '';
-                    headerStatus.textContent = data.name ? `Bonjour, ${data.name}` : 'Connecté';
-                    
-                    if (data.avatarUrl) {
-                        document.getElementById('profile-avatar-preview').innerHTML = `<img src="${data.avatarUrl}" alt="Avatar">`;
-                    } else {
-                        document.getElementById('profile-avatar-preview').textContent = data.name ? data.name.charAt(0).toUpperCase() : "U";
-                    }
                 }
             } else {
                 authContainer.style.display = 'block';
                 profileSettings.style.display = 'none';
-                headerStatus.textContent = 'Invité';
                 renderAuthForm();
             }
             loadFeed();
-            if (document.getElementById('view-vendre').classList.contains('active')) {
-                checkAuthForSelling();
-            }
         });
 
-        // Formulaire d'authentification et acceptation obligatoire des conditions
+        // Formulaire d'authentification avec acceptation des conditions
         function renderAuthForm() {
             const container = document.getElementById('auth-container');
             container.innerHTML = `
-                <h2 style="font-size: 1.15rem; margin-bottom: 16px; font-weight: 700;">Connexion / Inscription obligatoire</h2>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">Créez un compte ou connectez-vous pour publier des articles et passer des commandes.</p>
+                <h2 style="font-size: 1.1rem; margin-bottom: 16px; font-weight: 600;">Connexion / Inscription</h2>
                 <form id="auth-submit-form">
                     <input type="email" id="auth-email" placeholder="Adresse email" required>
-                    <input type="password" id="auth-password" placeholder="Mot de passe (6 caractères min.)" required minlength="6">
-                    
+                    <input type="password" id="auth-password" placeholder="Mot de passe" required>
                     <div class="terms-container">
                         <input type="checkbox" id="terms-check" required>
-                        <label for="terms-check">J'accepte les conditions d'utilisation et la politique de confidentialité de LinkUp.</label>
+                        <label for="terms-check">J'accepte les conditions d'utilisation et la politique de confidentialité de l'application.</label>
                     </div>
-                    
-                    <button type="submit">Valider et continuer</button>
+                    <button type="submit">Continuer</button>
                 </form>
             `;
 
@@ -404,97 +371,27 @@
                 }
 
                 try {
+                    // Tentative de connexion, sinon inscription
                     let res;
                     try {
                         res = await auth.signInWithEmailAndPassword(email, password);
                     } catch (err) {
                         res = await auth.createUserWithEmailAndPassword(email, password);
+                        // Initialiser le profil utilisateur
                         await db.collection('users').doc(res.user.uid).set({
                             name: email.split('@')[0],
                             phone: '',
-                            avatarUrl: '',
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
-                    alert("Authentification réussie.");
+                    alert("Connexion réussie");
                 } catch (error) {
                     alert("Erreur : " + error.message);
                 }
             });
         }
 
-        // Vérification d'accès à l'onglet Vendre (Publication)
-        function checkAuthForSelling() {
-            const sellCard = document.getElementById('sell-card-content');
-            const user = auth.currentUser;
-
-            if (!user) {
-                sellCard.innerHTML = `
-                    <h2 style="font-size: 1.15rem; margin-bottom: 12px; font-weight: 700;">Accès restreint</h2>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">Vous devez obligatoirement vous connecter ou créer un compte pour publier un article sur le marché.</p>
-                    <button onclick="switchView('profil')">Se connecter / S'inscrire</button>
-                `;
-            } else {
-                sellCard.innerHTML = `
-                    <h2 style="font-size: 1.15rem; margin-bottom: 16px; font-weight: 700;">Publier un article</h2>
-                    <form id="post-form">
-                        <input type="text" id="product-title" placeholder="Nom du produit ou service" required>
-                        <input type="text" id="product-price" placeholder="Prix (ex: 250 000 GNF)" required>
-                        <textarea id="product-desc" rows="4" placeholder="Description détaillée..." required></textarea>
-                        
-                        <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Photo du produit</label>
-                        <input type="file" id="product-image" accept="image/*" required>
-                        
-                        <button type="submit">Publier maintenant</button>
-                    </form>
-                `;
-
-                document.getElementById('post-form').addEventListener('submit', handlePostSubmission);
-            }
-        }
-
-        // Gestion de la soumission d'une publication
-        async function handlePostSubmission(e) {
-            e.preventDefault();
-            const user = auth.currentUser;
-            if (!user) return;
-
-            const title = document.getElementById('product-title').value;
-            const price = document.getElementById('product-price').value;
-            const desc = document.getElementById('product-desc').value;
-            const imageFile = document.getElementById('product-image').files[0];
-
-            const userDoc = await db.collection('users').doc(user.uid).get();
-            const userData = userDoc.exists ? userDoc.data() : { name: "Utilisateur", phone: "Non renseigné", avatarUrl: "" };
-
-            const reader = new FileReader();
-            reader.readAsDataURL(imageFile);
-            reader.onload = async () => {
-                const base64Image = reader.result;
-
-                try {
-                    await db.collection('posts').add({
-                        userId: user.uid,
-                        userName: userData.name || "Utilisateur",
-                        userPhone: userData.phone || "Non renseigné",
-                        userAvatar: userData.avatarUrl || "",
-                        title: title,
-                        price: price,
-                        description: desc,
-                        imageUrl: base64Image,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    alert("Publication effectuée avec succès !");
-                    document.getElementById('post-form').reset();
-                    switchView('accueil');
-                } catch (error) {
-                    alert("Erreur lors de la publication : " + error.message);
-                }
-            };
-        }
-
-        // Modification des informations du profil
+        // Mise à jour du profil (Nom et Numéro)
         document.getElementById('profile-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const user = auth.currentUser;
@@ -508,66 +405,85 @@
                     name: name,
                     phone: phone
                 }, { merge: true });
-                alert("Paramètres mis à jour avec succès.");
-                loadFeed();
+                alert("Profil mis à jour avec succès");
             } catch (error) {
-                alert("Erreur de mise à jour : " + error.message);
+                alert("Erreur lors de la mise à jour : " + error.message);
             }
         });
 
-        // Changement de la photo de profil
-        function updateProfileAvatar(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const user = auth.currentUser;
-            if (!user) return;
-
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const base64Avatar = reader.result;
-                try {
-                    await db.collection('users').doc(user.uid).set({
-                        avatarUrl: base64Avatar
-                    }, { merge: true });
-                    document.getElementById('profile-avatar-preview').innerHTML = `<img src="${base64Avatar}" alt="Avatar">`;
-                    alert("Photo de profil mise à jour.");
-                    loadFeed();
-                } catch (error) {
-                    alert("Erreur lors de la mise à jour de la photo : " + error.message);
-                }
-            };
-        }
-
         document.getElementById('logout-btn').addEventListener('click', () => {
             auth.signOut();
-            switchView('accueil');
         });
 
-        // Charger et afficher le fil d'actualité pour tout le monde
+        // Publication d'un produit (Upload Cloudinary ou stockage direct)
+        document.getElementById('post-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Veuillez vous connecter pour publier.");
+                switchView('profil');
+                return;
+            }
+
+            const title = document.getElementById('product-title').value;
+            const price = document.getElementById('product-price').value;
+            const desc = document.getElementById('product-desc').value;
+            const imageFile = document.getElementById('product-image').files[0];
+
+            // Récupérer le nom et le téléphone de l'utilisateur
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.exists ? userDoc.data() : { name: "Utilisateur" };
+
+            // Simulation d'upload d'image (À connecter à Cloudinary si besoin)
+            const reader = new FileReader();
+            reader.readAsDataURL(imageFile);
+            reader.onload = async () => {
+                const base64Image = reader.result;
+
+                try {
+                    await db.collection('posts').add({
+                        userId: user.uid,
+                        userName: userData.name || "Utilisateur",
+                        userPhone: userData.phone || "Non renseigné",
+                        title: title,
+                        price: price,
+                        description: desc,
+                        imageUrl: base64Image,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    alert("Publication réussie !");
+                    document.getElementById('post-form').reset();
+                    switchView('accueil');
+                } catch (error) {
+                    alert("Erreur lors de la publication : " + error.message);
+                }
+            };
+        });
+
+        // Charger le fil d'actualité
         async function loadFeed() {
             const feedContainer = document.getElementById('feed-container');
-            feedContainer.innerHTML = "<p style='text-align:center; color:var(--text-muted); padding: 20px;'>Chargement des annonces...</p>";
+            feedContainer.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>Chargement du fil...</p>";
 
             try {
                 const snapshot = await db.collection('posts').orderBy('createdAt', 'desc').get();
                 feedContainer.innerHTML = "";
 
                 if (snapshot.empty) {
-                    feedContainer.innerHTML = "<p style='text-align:center; color:var(--text-muted); padding: 20px;'>Aucune publication pour le moment.</p>";
+                    feedContainer.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>Aucune publication pour le moment.</p>";
                     return;
                 }
 
                 snapshot.forEach(doc => {
                     const post = doc.data();
                     const initial = post.userName ? post.userName.charAt(0).toUpperCase() : "U";
-                    const avatarHtml = post.userAvatar ? `<img src="${post.userAvatar}" alt="Avatar">` : initial;
 
                     const postElement = document.createElement('div');
                     postElement.className = 'post-card';
                     postElement.innerHTML = `
                         <div class="post-header">
-                            <div class="avatar">${avatarHtml}</div>
+                            <div class="avatar">${initial}</div>
                             <div class="post-user-info">
                                 <div class="name">${post.userName}</div>
                                 <div class="time">Contact : ${post.userPhone}</div>
@@ -578,26 +494,12 @@
                             <div class="post-title">${post.title}</div>
                             <div class="post-price">${post.price}</div>
                             <div class="post-desc">${post.description}</div>
-                            <div class="action-buttons">
-                                <button onclick="handleOrderAction('${post.title}')">Commander</button>
-                            </div>
                         </div>
                     `;
                     feedContainer.appendChild(postElement);
                 });
             } catch (error) {
-                feedContainer.innerHTML = "<p style='text-align:center; color:var(--text-muted); padding: 20px;'>Erreur de chargement du fil d'actualité.</p>";
-            }
-        }
-
-        // Restriction de la commande (nécessite d'être connecté)
-        function handleOrderAction(productTitle) {
-            const user = auth.currentUser;
-            if (!user) {
-                alert("Vous devez impérativement vous connecter ou créer un compte pour commander ce produit.");
-                switchView('profil');
-            } else {
-                alert(`Votre commande pour "${productTitle}" a été prise en compte avec succès. Le vendeur vous contactera.`);
+                feedContainer.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>Erreur de chargement du fil d'actualité.</p>";
             }
         }
     </script>
