@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkUp - Application Social E-Commerce Sécurisée</title>
+    <style>
+        :root {
+            --primary: #007AFF;
+            --primary-rgb: 0, 122, 255;
+            --accent: #FF9500;
+            --bg-glass: rgba(255, 255, 255, 0.45);
+            --bg-glass-card: rgba(255, 255, 255, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.8);
+            --text-main: #1c1c1e;
+            --text-secondary: #8e8e93;
+            --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+        }
+
+        body.dark-mode {
+            --primary: #0A84FF;
+            --primary-rgb: 10, 132, 255;
+            --accent: #FF9F0A;
+            --bg-glass: rgba(28, 28, 30, 0.45);
+            --bg-glass-card: rgba(44, 44, 46, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --text-main: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--text-main);
+            padding-bottom: 90px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 122, 255, 0.18) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(255, 149, 0, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        header {
+            background: var(--bg-glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-glass);
+        }
+
+        header h1 {
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 30px);
+            max-width: 480px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 5px;
+            border-radius: 25px;
+            box-shadow: var(--shadow-glass);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            flex: 1;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+            transform: translateY(-2px);
+        }
+
+        .nav-item span {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+            animation: iceFrostIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes iceFrostIn {
+            0% { opacity: 0; filter: blur(10px); transform: translateY(12px) scale(0.96); }
+            100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .btn-main {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.35);
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn-main:active { transform: scale(0.95); opacity: 0.9; }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            padding: 14px 10px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-glass);
+        }
+
+        .stat-card h4 {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .stat-card span {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .feed-card {
+            background: var(--bg-glass-card);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 22px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-glass);
+            border: 1px solid var(--border-glass);
+            position: relative;
+        }
+
+        .feed-card.sold {
+            opacity: 0.65;
+            filter: grayscale(30%);
+        }
+
+        .sold-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #FF3B30;
+            color: white;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 20px;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+        }
+
+        .feed-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .feed-user-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .feed-user-info span {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            background: rgba(0,0,0,0.04);
+            overflow: hidden;
+            max-height: 380px;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            max-height: 380px;
+            object-fit: cover;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.4);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            z-index: 5;
+            backdrop-filter: blur(5px);
+        }
+
+        .carousel-prev { left: 10px; }
+        .carousel-next { right: 10px; }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            width: 16px;
+            border-radius: 4px;
+        }
+
+        .feed-body {
+            padding: 14px 18px;
+            cursor: pointer;
+        }
+
+        .feed-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .feed-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .feed-price {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .feed-actions {
+            display: flex;
+            gap: 10px;
+            padding: 0 18px 18px 18px;
+        }
+
+        .profile-box {
+            background: var(--bg-glass-card);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 25px 20px;
+            border-radius: 22px;
+            text-align: center;
+            box-shadow: var(--shadow-glass);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .profile-avatar-large {
+            width: 90px;
+            height: 90px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: bold;
+            margin: 0 auto 12px auto;
+            object-fit: cover;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .settings-section {
+            background: var(--bg-glass-card);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 22px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-glass);
+        }
+
+        .settings-section h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 6px;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .settings-item:last-child { border-bottom: none; }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #e5e5ea;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider { background-color: #34C759; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--bg-glass-card);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            color: var(--text-main);
+            width: 100%;
+            max-width: 520px;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            padding: 24px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 -20px 50px rgba(0,0,0,0.2);
+            animation: sheetSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            border-top: 1px solid var(--border-glass);
+        }
+
+        @keyframes sheetSlideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: rgba(0,0,0,0.06);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-main);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .operators, .role-options, .payment-cages {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .operator-option, .role-option, .cage-option {
+            flex: 1;
+            padding: 12px 8px;
+            border: 2px solid var(--border-glass);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .operator-option.selected, .role-option.selected, .cage-option.selected {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(var(--primary-rgb), 0.12);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .auth-switch span {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .detail-gallery {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: rgba(0,0,0,0.05);
+            max-height: 320px;
+        }
+
+        .detail-info-box {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .detail-info-box h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        #uploadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            flex-direction: column;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .spinner {
+            width: 45px; height: 45px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="uploadingOverlay">
+        <div class="spinner"></div>
+        <span id="uploadStatusText">Envoi sécurisé des images en cours...</span>
+    </div>
+
+    <header>
+        <h1>LinkUp Social</h1>
+        <div class="header-actions" id="headerActions"></div>
+    </header>
+
+    <div class="container">
+        <div id="tab-feed" class="tab-content active">
+            <div class="section-title">
+                <h2>Fil d'actualité</h2>
+                <button class="btn-main" onclick="switchTab('sell', document.querySelectorAll('.bottom-nav button')[1])">+ Vendre</button>
+            </div>
+            <div id="feedContainer"></div>
+        </div>
+
+        <div id="tab-sell" class="tab-content">
+            <div class="section-title">
+                <h2>Espace Vente & Dashboard</h2>
+                <button class="btn-main" onclick="openAddModal()">+ Publier (Multi-photos)</button>
+            </div>
+            
+            <div class="dashboard-grid" id="vendorDashboard">
+                <div class="stat-card">
+                    <h4>Annonces</h4>
+                    <span id="statActive">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Vendus</h4>
+                    <span id="statSold">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Chiffre d'Aff.</h4>
+                    <span id="statRevenue" style="font-size: 11px;">0 GNF</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 16px; margin-bottom: 12px; font-weight: 600;">Mes Articles en Ligne</h3>
+            <div id="myProductsContainer"></div>
+        </div>
+
+        <div id="tab-orders" class="tab-content">
+            <div class="section-title">
+                <h2>Mes Commandes</h2>
+            </div>
+            <div id="ordersContainer"></div>
+        </div>
+
+        <div id="tab-profile" class="tab-content">
+            <div id="profileContainer"></div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('feed', this)">
+            <span>🏠</span>Fil
+        </button>
+        <button class="nav-item" onclick="switchTab('sell', this)">
+            <span>🏷️</span>Vendre
+        </button>
+        <button class="nav-item" onclick="switchTab('orders', this)">
+            <span>📦</span>Suivi
+        </button>
+        <button class="nav-item" onclick="switchTab('profile', this)">
+            <span>👤</span>Profil
+        </button>
+    </nav>
+
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="authTitle" style="font-size: 18px; font-weight: 700;">Connexion</h3>
+                <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+            </div>
+
+            <div id="loginFormSection">
+                <div class="form-group">
+                    <label>Email ou Téléphone :</label>
+                    <input type="text" id="loginId" placeholder="Ex: ibrahima@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe :</label>
+                    <input type="password" id="loginPass" placeholder="********">
+                </div>
+                <button class="btn-main" style="width:100%; padding: 14px; margin-top: 5px;" onclick="handleLogin()">Se connecter</button>
+                <div class="auth-switch">
+                    Pas de compte ? <span onclick="switchAuthMode('register')">S'inscrire</span>
+                </div>
+            </div>
+
+            <div id="registerFormSection" style="display: none;">
+                <div class="form-group">
+                    <label>Je m'inscris en tant que :</label>
+                    <div class="role-options">
+                        <div class="role-option selected" id="roleClient" onclick="selectRole('client')">Client</div>
+                        <div class="role-option" id="roleVendor" onclick="selectRole('vendor')">Vendeur</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Nom complet :</label>
+                    <input type="text" id="regName" placeholder="Ex: Ibrahima Bah">
+                </div>
+                <div class="form-group">
+                    <label>Email :</label>
+                    <input type="email" id="regEmail" placeholder="Ex: ibrahima@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone :</label>
+                    <input type="tel" id="regPhone" placeholder="Ex: 620000000">
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe :</label>
+                    <input type="password" id="regPass" placeholder="********">
+                </div>
+                <div class="form-group">
+                    <label>Localisation :</label>
+                    <input type="text" id="regLocation" placeholder="Ex: Conakry, Guinée">
+                </div>
+                <div class="form-group">
+                    <label>Photo de profil :</label>
+                    <input type="file" id="regAvatarFile" accept="image/*">
+                </div>
+                <button class="btn-main" style="width:100%; padding: 14px; margin-top: 5px;" onclick="handleRegister()">Créer mon compte</button>
+                <div class="auth-switch">
+                    Déjà un compte ? <span onclick="switchAuthMode('login')">Se connecter</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="productDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailTitle" style="font-size: 18px; font-weight: 700;">Détails de l'article</h3>
+                <button class="close-btn" onclick="closeProductDetailModal()">&times;</button>
+            </div>
+            
+            <div class="detail-gallery" id="detailGalleryContainer"></div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 id="detailPrice" style="color: var(--primary); font-size: 20px;">0 GNF</h2>
+                <span id="detailSeller" style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Vendeur: -</span>
+            </div>
+
+            <div class="detail-info-box">
+                <h4>Description complète :</h4>
+                <p id="detailDesc" style="font-size: 14px; line-height: 1.4; color: var(--text-main);">-</p>
+            </div>
+
+            <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--primary);">📍 Vos Informations de Livraison</h3>
+            <div class="form-group">
+                <label>Nom et Prénom :</label>
+                <input type="text" id="deliveryName" placeholder="Ex: Ibrahima Bah">
+            </div>
+            <div class="form-group">
+                <label>Numéro de téléphone :</label>
+                <input type="tel" id="deliveryPhone" placeholder="Ex: 620 00 00 00">
+            </div>
+            <div class="form-group">
+                <label>Ville :</label>
+                <input type="text" id="deliveryCity" placeholder="Ex: Conakry">
+            </div>
+            <div class="form-group">
+                <label>Quartier :</label>
+                <input type="text" id="deliveryDistrict" placeholder="Ex: Kipé, Lambanyi...">
+            </div>
+            <div class="form-group">
+                <label>Lieu précis / Repère :</label>
+                <input type="text" id="deliveryAddress" placeholder="Ex: Près de la mosquée...">
+            </div>
+
+            <div class="form-group">
+                <label>Mode de règlement :</label>
+                <div class="payment-cages">
+                    <div class="cage-option selected" id="cageBefore" onclick="selectPaymentCage('before')">💳 Payer avant (Mobile Money)</div>
+                    <div class="cage-option" id="cageAfter" onclick="selectPaymentCage('after')">💵 Payer à la livraison</div>
+                </div>
+            </div>
+
+            <div id="mobileMoneySection">
+                <div class="form-group">
+                    <label>Opérateur :</label>
+                    <div class="operators">
+                        <div class="operator-option selected" id="optOrange" onclick="selectOperator('Orange Money')">Orange Money</div>
+                        <div class="operator-option" id="optMtn" onclick="selectOperator('MTN MoMo')">MTN MoMo</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-main" style="width:100%; padding: 14px; margin-top: 10px;" onclick="confirmOrderWithDetails()">Confirmer et Commander</button>
+        </div>
+    </div>
+
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 18px; font-weight: 700;">Publier sur le fil social</h3>
+                <button class="close-btn" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Nom du produit :</label>
+                <input type="text" id="newTitle" placeholder="Ex: iPhone 14 Pro Max">
+            </div>
+            <div class="form-group">
+                <label>Description :</label>
+                <textarea id="newDesc" placeholder="Décrivez votre article..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Prix en GNF :</label>
+                <input type="number" id="newPriceNum" placeholder="Ex: 7500000">
+            </div>
+            <div class="form-group">
+                <label>Photos du produit (Plusieurs photos possibles) :</label>
+                <input type="file" id="newImagesFiles" accept="image/*" multiple>
+            </div>
+            <button class="btn-main" style="width:100%; padding: 14px; margin-top: 5px;" onclick="publishProductWithCloudinary()">Publier</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION SÉCURISÉE (Le nom de cloud est masqué)
+        const CLOUD_CONFIG = {
+            name: "in3wd1wv", 
+            preset: "linkup_preset"
+        };
+
+        let users = JSON.parse(localStorage.getItem('mg_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('mg_current_user')) || null;
+        let products = JSON.parse(localStorage.getItem('mg_products')) || [];
+        let myOrders = JSON.parse(localStorage.getItem('mg_orders')) || [];
+        let selectedRole = "client";
+        let paymentType = "before";
+        let selectedOperatorName = "Orange Money";
+        let activeProductDetails = null;
+
+        let appSettings = JSON.parse(localStorage.getItem('mg_settings')) || { darkMode: false, notifications: true, hidePhone: false };
+        if(appSettings.darkMode) document.body.classList.add('dark-mode');
+
+        function showUploading(show, text = "Envoi sécurisé en cours...") {
+            const overlay = document.getElementById('uploadingOverlay');
+            document.getElementById('uploadStatusText').innerText = text;
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // UPLOAD CLOUD SÉCURISÉ
+        async function uploadFileToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUD_CONFIG.preset);
+
+            try {
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_CONFIG.name}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if(data.secure_url) {
+                    return data.secure_url;
+                } else {
+                    throw new Error(data.error?.message || "Erreur de téléversement");
+                }
+            } catch (err) {
+                alert("Échec de l'envoi de l'image. Vérifiez votre connexion : " + err.message);
+                throw err;
+            }
+        }
+
+        function updateHeader() {
+            const headerActions = document.getElementById('headerActions');
+            if (currentUser) {
+                headerActions.innerHTML = `<button class="btn-outline" onclick="logout()">Déconnexion</button>`;
+            } else {
+                headerActions.innerHTML = `<button class="btn-main" onclick="openAuthModal('login')">Connexion</button>`;
+            }
+            renderProfileTab();
+        }
+
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav button').forEach(el => el.classList.remove('active'));
+            
+            const targetTab = document.getElementById('tab-' + tabName);
+            targetTab.classList.add('active');
+            
+            if(element) {
+                element.classList.add('active');
+            } else {
+                const buttons = document.querySelectorAll('.bottom-nav button');
+                if(tabName === 'feed') buttons[0].classList.add('active');
+                if(tabName === 'sell') buttons[1].classList.add('active');
+                if(tabName === 'orders') buttons[2].classList.add('active');
+                if(tabName === 'profile') buttons[3].classList.add('active');
+            }
+
+            if(tabName === 'feed') renderFeed();
+            if(tabName === 'sell') renderSellTab();
+            if(tabName === 'orders') renderOrdersTab();
+            if(tabName === 'profile') renderProfileTab();
+        }
+
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+            container.innerHTML = '';
+            
+            if(products.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 30px;">Aucune publication disponible.</p>';
+                return;
+            }
+
+            products.forEach((p, pIndex) => {
+                let avatarHtml = p.avatar ? `<img src="${p.avatar}" class="avatar">` : `<div class="avatar">${p.seller.charAt(0).toUpperCase()}</div>`;
+                let isSold = p.status === 'sold';
+                
+                let imagesArray = p.images && p.images.length > 0 ? p.images : [];
+                if(imagesArray.length === 0) return;
+
+                let slides = imagesArray.map(img => `<div class="carousel-slide"><img src="${img}" loading="lazy"></div>`).join('');
+                let dots = imagesArray.length > 1 ? imagesArray.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" data-slide="${i}"></span>`).join('') : '';
+                let controls = imagesArray.length > 1 ? `
+                    <button class="carousel-btn carousel-prev" onclick="event.stopPropagation(); moveSlide(${pIndex}, -1)">&#10094;</button>
+                    <button class="carousel-btn carousel-next" onclick="event.stopPropagation(); moveSlide(${pIndex}, 1)">&#10095;</button>
+                    <div class="carousel-dots" id="dots-${pIndex}">${dots}</div>
+                ` : '';
+
+                let carouselHtml = `
+                    <div class="carousel-container" id="carousel-${pIndex}" data-current="0" data-total="${imagesArray.length}">
+                        <div class="carousel-track" id="track-${pIndex}">
+                            ${slides}
+                        </div>
+                        ${controls}
+                    </div>
+                `;
+
+                container.innerHTML += `
+                    <div class="feed-card ${isSold ? 'sold' : ''}">
+                        ${isSold ? '<div class="sold-badge">VENDU</div>' : ''}
+                        <div class="feed-header">
+                            ${avatarHtml}
+                            <div class="feed-user-info">
+                                <h4>${p.seller}</h4>
+                                <span>📍 ${p.location || 'Guinée'}</span>
+                            </div>
+                        </div>
+                        <div onclick="openProductDetail(${p.id})">
+                            ${carouselHtml}
+                            <div class="feed-body">
+                                <div class="feed-title">${p.title}</div>
+                                <div class="feed-desc">${p.desc || ''}</div>
+                                <div class="feed-price">${p.price}</div>
+                            </div>
+                        </div>
+                        <div class="feed-actions">
+                            ${isSold ? 
+                                '<button class="btn-outline" style="flex:1; opacity:0.5; cursor:not-allowed;" disabled>Article Vendu</button>' : 
+                                `<button class="btn-main" style="flex:1;" onclick="openProductDetail(${p.id})">Acheter</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function moveSlide(pIndex, direction) {
+            const carousel = document.getElementById(`carousel-${pIndex}`);
+            const track = document.getElementById(`track-${pIndex}`);
+            let current = parseInt(carousel.getAttribute('data-current'));
+            let total = parseInt(carousel.getAttribute('data-total'));
+
+            current += direction;
+            if (current < 0) current = total - 1;
+            if (current >= total) current = 0;
+
+            carousel.setAttribute('data-current', current);
+            track.style.transform = `translateX(-${current * 100}%)`;
+
+            const dotsContainer = document.getElementById(`dots-${pIndex}`);
+            if (dotsContainer) {
+                Array.from(dotsContainer.children).forEach((dot, idx) => {
+                    dot.classList.toggle('active', idx === current);
+                });
+            }
+        }
+
+        function openProductDetail(productId) {
+            const product = products.find(p => p.id === productId);
+            if(!product) return;
+            activeProductDetails = product;
+
+            document.getElementById('detailTitle').innerText = product.title;
+            document.getElementById('detailPrice').innerText = product.price;
+            document.getElementById('detailSeller').innerText = "Vendeur : " + product.seller;
+            document.getElementById('detailDesc').innerText = product.desc || "Aucune description fournie.";
+
+            if(currentUser) {
+                document.getElementById('deliveryName').value = currentUser.name || '';
+                document.getElementById('deliveryPhone').value = currentUser.phone || '';
+                document.getElementById('deliveryCity').value = currentUser.location || '';
+            }
+
+            let imagesArray = product.images || [];
+            let slides = imagesArray.map(img => `<div class="carousel-slide"><img src="${img}"></div>`).join('');
+            let dots = imagesArray.length > 1 ? imagesArray.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}"></span>`).join('') : '';
+            let controls = imagesArray.length > 1 ? `
+                <button class="carousel-btn carousel-prev" onclick="moveDetailSlide(-1)">&#10094;</button>
+                <button class="carousel-btn carousel-next" onclick="moveDetailSlide(1)">&#10095;</button>
+                <div class="carousel-dots" id="detailDots">${dots}</div>
+            ` : '';
+
+            let detailGalleryHtml = `
+                <div class="carousel-container" id="detailCarousel" data-current="0" data-total="${imagesArray.length}" style="max-height: 280px;">
+                    <div class="carousel-track" id="detailTrack">${slides}</div>
+                    ${controls}
+                </div>
+            `;
+            document.getElementById('detailGalleryContainer').innerHTML = detailGalleryHtml;
+            document.getElementById('productDetailModal').style.display = 'flex';
+        }
+
+        function closeProductDetailModal() {
+            document.getElementById('productDetailModal').style.display = 'none';
+        }
+
+        function moveDetailSlide(direction) {
+            const carousel = document.getElementById('detailCarousel');
+            if(!carousel) return;
+            const track = document.getElementById('detailTrack');
+            let current = parseInt(carousel.getAttribute('data-current'));
+            let total = parseInt(carousel.getAttribute('data-total'));
+
+            current += direction;
+            if (current < 0) current = total - 1;
+            if (current >= total) current = 0;
+
+            carousel.setAttribute('data-current', current);
+            track.style.transform = `translateX(-${current * 100}%)`;
+
+            const dotsContainer = document.getElementById('detailDots');
+            if (dotsContainer) {
+                Array.from(dotsContainer.children).forEach((dot, idx) => {
+                    dot.classList.toggle('active', idx === current);
+                });
+            }
+        }
+
+        function selectPaymentCage(type) {
+            paymentType = type;
+            document.getElementById('cageBefore').classList.toggle('selected', type === 'before');
+            document.getElementById('cageAfter').classList.toggle('selected', type === 'after');
+            document.getElementById('mobileMoneySection').style.display = (type === 'before') ? 'block' : 'none';
+        }
+
+        function selectOperator(op) {
+            selectedOperatorName = op;
+            document.getElementById('optOrange').classList.toggle('selected', op === 'Orange Money');
+            document.getElementById('optMtn').classList.toggle('selected', op === 'MTN MoMo');
+        }
+
+        function confirmOrderWithDetails() {
+            const name = document.getElementById('deliveryName').value.trim();
+            const phone = document.getElementById('deliveryPhone').value.trim();
+            const city = document.getElementById('deliveryCity').value.trim();
+            const district = document.getElementById('deliveryDistrict').value.trim();
+            const address = document.getElementById('deliveryAddress').value.trim();
+
+            if(!name || !phone || !city || !district || !address) {
+                alert("Veuillez remplir toutes vos informations de livraison.");
+                return;
+            }
+
+            let paymentModeDesc = paymentType === 'before' ? `Payer avant (${selectedOperatorName})` : "Payer à la livraison";
+
+            let orderData = {
+                title: activeProductDetails.title,
+                price: activeProductDetails.price,
+                seller: activeProductDetails.seller,
+                paymentMode: paymentModeDesc,
+                status: 'En attente ⏳',
+                deliveryInfo: { name, phone, city, district, address }
+            };
+
+            myOrders.unshift(orderData);
+            localStorage.setItem('mg_orders', JSON.stringify(myOrders));
+
+            closeProductDetailModal();
+            alert("Commande validée avec succès !");
+            switchTab('orders');
+        }
+
+        function renderSellTab() {
+            const container = document.getElementById('myProductsContainer');
+            if(!currentUser) {
+                container.innerHTML = `
+                    <div class="profile-box">
+                        <h3>Espace Vendeur</h3>
+                        <p style="font-size:13px; color:var(--text-secondary); margin: 10px 0;">Connectez-vous pour gérer vos publications.</p>
+                        <button class="btn-main" onclick="openAuthModal('login')">Se connecter</button>
+                    </div>
+                `;
+                document.getElementById('vendorDashboard').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('vendorDashboard').style.display = 'grid';
+            let userProducts = products.filter(p => p.seller === currentUser.name);
+
+            let activeCount = userProducts.filter(p => p.status === 'active').length;
+            let soldCount = userProducts.filter(p => p.status === 'sold').length;
+            let totalRevenue = userProducts.filter(p => p.status === 'sold').reduce((acc, curr) => acc + (curr.priceNum || 0), 0);
+
+            document.getElementById('statActive').innerText = activeCount;
+            document.getElementById('statSold').innerText = soldCount;
+            document.getElementById('statRevenue').innerText = totalRevenue.toLocaleString() + " GNF";
+
+            if(userProducts.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 30px;">Aucun article publié.</p>';
+                return;
+            }
+
+            container.innerHTML = userProducts.map(p => `
+                <div class="feed-card" style="padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div>
+                        <h4 style="font-size:15px; font-weight:600;">${p.title} ${p.status === 'sold' ? '<span style="color:#FF3B30; font-size:11px; font-weight:bold;">(Vendu)</span>' : ''}</h4>
+                        <span style="font-size:13px; color:var(--primary); font-weight:700;">${p.price}</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        ${p.status === 'active' ? 
+                            `<button class="btn-outline" style="color: #34C759; border-color: #34C759;" onclick="markAsSold(${p.id})">Vendu</button>` : 
+                            `<button class="btn-outline" onclick="markAsActive(${p.id})">Remettre</button>`
+                        }
+                        <button class="btn-outline" style="color: #FF3B30; border-color: #FF3B30;" onclick="deleteProduct(${p.id})">Suppr</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderOrdersTab() {
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = '';
+
+            if(myOrders.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 30px;">Aucune commande.</p>';
+                return;
+            }
+
+            myOrders.forEach(o => {
+                let deliveryHtml = o.deliveryInfo ? `
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-glass); font-size: 12px; color: var(--text-secondary);">
+                        <strong>Livraison :</strong> ${o.deliveryInfo.name} | 📞 ${o.deliveryInfo.phone}<br>
+                        📍 ${o.deliveryInfo.city}, ${o.deliveryInfo.district} (${o.deliveryInfo.address})
+                    </div>
+                ` : '';
+
+                container.innerHTML += `
+                    <div class="feed-card" style="padding: 16px;">
+                        <h4 style="font-size:16px; font-weight:600; margin-bottom: 6px;">📦 ${o.title}</h4>
+                        <p style="font-size:14px; color:var(--primary); font-weight:700;">Montant : ${o.price}</p>
+                        <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">Vendeur : ${o.seller}</p>
+                        <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">Mode : ${o.paymentMode}</p>
+                        ${deliveryHtml}
+                        <p style="font-size:13px; color:var(--accent); font-weight:700; margin-top:10px;">Statut : ${o.status}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function renderProfileTab() {
+            const container = document.getElementById('profileContainer');
+            if(!currentUser) {
+                container.innerHTML = `
+                    <div class="profile-box">
+                        <h3>Mon Profil</h3>
+                        <p style="font-size:13px; color:var(--text-secondary); margin: 10px 0;">Connectez-vous pour voir vos informations.</p>
+                        <button class="btn-main" onclick="openAuthModal('login')">Se connecter</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let avatarLargeHtml = currentUser.avatar ? 
+                `<img src="${currentUser.avatar}" class="profile-avatar-large">` : 
+                `<div class="profile-avatar-large">${currentUser.name.charAt(0).toUpperCase()}</div>`;
+
+            let roleBadge = currentUser.role === 'vendor' ? '🏷️ Vendeur' : '🛒 Client';
+            let displayPhone = appSettings.hidePhone ? 'Masqué' : currentUser.phone;
+
+            container.innerHTML = `
+                <div class="profile-box">
+                    ${avatarLargeHtml}
+                    <h3>${currentUser.name}</h3>
+                    <p style="font-size:13px; color:var(--primary); margin-top:5px; font-weight:700;">Compte : ${roleBadge}</p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">✉️ ${currentUser.email}</p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">📞 ${displayPhone}</p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">📍 ${currentUser.location}</p>
+                </div>
+
+                <div class="settings-section">
+                    <h3>⚙️ Paramètres</h3>
+                    <div class="settings-item">
+                        <span>Mode Sombre (iOS Glace)</span>
+                        <label class="switch">
+                            <input type="checkbox" ${appSettings.darkMode ? 'checked' : ''} onchange="toggleDarkMode(this)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <span>Masquer mon téléphone</span>
+                        <label class="switch">
+                            <input type="checkbox" ${appSettings.hidePhone ? 'checked' : ''} onchange="toggleSetting('hidePhone', this)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+
+        updateHeader();
+        renderFeed();
+
+        function openAuthModal(mode) {
+            document.getElementById('authModal').style.display = 'flex';
+            switchAuthMode(mode);
+        }
+        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+
+        function switchAuthMode(mode) {
+            if(mode === 'login') {
+                document.getElementById('authTitle').innerText = "Connexion";
+                document.getElementById('loginFormSection').style.display = 'block';
+                document.getElementById('registerFormSection').style.display = 'none';
+            } else {
+                document.getElementById('authTitle').innerText = "Créer un compte";
+                document.getElementById('loginFormSection').style.display = 'none';
+                document.getElementById('registerFormSection').style.display = 'block';
+            }
+        }
+
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('roleClient').classList.toggle('selected', role === 'client');
+            document.getElementById('roleVendor').classList.toggle('selected', role === 'vendor');
+        }
+
+        async function handleRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPass').value.trim();
+            const location = document.getElementById('regLocation').value.trim();
+            const avatarFile = document.getElementById('regAvatarFile').files[0];
+
+            if(!name || !email || !phone || !password || !location) { alert("Remplissez tous les champs."); return; }
+
+            let avatarUrl = "";
+            try {
+                if(avatarFile) {
+                    showUploading(true, "Envoi de votre photo de profil...");
+                    avatarUrl = await uploadFileToCloudinary(avatarFile);
+                }
+            } catch (e) {
+                showUploading(false);
+                return;
+            } finally {
+                showUploading(false);
+            }
+
+            const newUser = { name, email, phone, password, location, avatar: avatarUrl, role: selectedRole };
+            users.push(newUser);
+            localStorage.setItem('mg_users', JSON.stringify(users));
+
+            currentUser = newUser;
+            localStorage.setItem('mg_current_user', JSON.stringify(currentUser));
+
+            alert("Compte créé avec succès !");
+            closeAuthModal();
+            updateHeader();
+            switchTab(selectedRole === 'vendor' ? 'sell' : 'feed');
+        }
+
+        function handleLogin() {
+            const loginId = document.getElementById('loginId').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+
+            let found = users.find(u => (u.email === loginId || u.phone === loginId) && u.password === password);
+            if(!found) { alert("Identifiants incorrects."); return; }
+
+            currentUser = found;
+            localStorage.setItem('mg_current_user', JSON.stringify(currentUser));
+            alert("Connexion réussie !");
+            closeAuthModal();
+            updateHeader();
+            switchTab(currentUser.role === 'vendor' ? 'sell' : 'feed');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('mg_current_user');
+            updateHeader();
+            switchTab('feed');
+        }
+
+        function toggleDarkMode(checkbox) {
+            appSettings.darkMode = checkbox.checked;
+            localStorage.setItem('mg_settings', JSON.stringify(appSettings));
+            if(appSettings.darkMode) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+        }
+
+        function toggleSetting(key, checkbox) {
+            appSettings[key] = checkbox.checked;
+            localStorage.setItem('mg_settings', JSON.stringify(appSettings));
+            renderProfileTab();
+        }
+
+        function openAddModal() {
+            if(!currentUser) { alert("Connectez-vous pour publier."); openAuthModal('login'); return; }
+            document.getElementById('addModal').style.display = 'flex';
+        }
+        function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+
+        async function publishProductWithCloudinary() {
+            const title = document.getElementById('newTitle').value.trim();
+            const desc = document.getElementById('newDesc').value.trim();
+            let priceNum = parseFloat(document.getElementById('newPriceNum').value);
+            const files = document.getElementById('newImagesFiles').files;
+
+            if(!title || isNaN(priceNum)) { alert("Indiquez un titre et un prix valide."); return; }
+            if(files.length === 0) { alert("Sélectionnez au moins une photo."); return; }
+
+            let imagesUrls = [];
+            try {
+                showUploading(true, `Envoi de ${files.length} photo(s) sur le Cloud...`);
+                
+                for(let i = 0; i < files.length; i++) {
+                    document.getElementById('uploadStatusText').innerText = `Téléversement image ${i + 1} / ${files.length}`;
+                    let secureUrl = await uploadFileToCloudinary(files[i]);
+                    imagesUrls.push(secureUrl);
+                }
+            } catch (err) {
+                showUploading(false);
+                return;
+            } finally {
+                showUploading(false);
+            }
+
+            products.unshift({ 
+                id: Date.now(), 
+                title, 
+                desc,
+                priceNum: priceNum,
+                price: priceNum.toLocaleString() + " GNF", 
+                seller: currentUser.name, 
+                avatar: currentUser.avatar || "", 
+                location: currentUser.location, 
+                images: imagesUrls,
+                status: 'active'
+            });
+            localStorage.setItem('mg_products', JSON.stringify(products));
+
+            closeAddModal();
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newDesc').value = '';
+            document.getElementById('newPriceNum').value = '';
+            document.getElementById('newImagesFiles').value = '';
+            
+            switchTab('feed');
+        }
+
+        function markAsSold(id) {
+            products = products.map(p => p.id === id ? { ...p, status: 'sold' } : p);
+            localStorage.setItem('mg_products', JSON.stringify(products));
+            renderSellTab();
+        }
+
+        function markAsActive(id) {
+            products = products.map(p => p.id === id ? { ...p, status: 'active' } : p);
+            localStorage.setItem('mg_products', JSON.stringify(products));
+            renderSellTab();
+        }
+
+        function deleteProduct(id) {
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('mg_products', JSON.stringify(products));
+            renderSellTab();
+        }
+    </script>
+</body>
+</html>
