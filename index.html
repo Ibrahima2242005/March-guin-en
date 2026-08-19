@@ -653,7 +653,7 @@
     </div>
 
     <header>
-        <h1>BAG BAH</h1>
+        <h1>LinkUp Social</h1>
         <div class="header-actions" id="headerActions"></div>
     </header>
 
@@ -1328,7 +1328,10 @@
             const location = document.getElementById('regLocation').value.trim();
             const avatarFile = document.getElementById('regAvatarFile').files[0];
 
-            if(!name || !email || !phone || !password || !location) { alert("Remplissez tous les champs."); return; }
+            if(!name || !email || !phone || !password || !location) { 
+                alert("Remplissez tous les champs."); 
+                return; 
+            }
 
             let avatarUrl = "";
             try {
@@ -1349,6 +1352,7 @@
                 window.switchTab(selectedRole === 'vendor' ? 'sell' : 'feed');
             } catch (e) {
                 showUploading(false);
+                console.error("Erreur Firebase:", e);
                 alert("Erreur lors de l'inscription : " + e.message);
             }
         }
@@ -1361,13 +1365,26 @@
 
             try {
                 showUploading(true, "Connexion en cours...");
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                // Timeout de sécurité de 6 secondes pour éviter le blocage infini sur le réseau mobile
+                const loginPromise = signInWithEmailAndPassword(auth, email, password);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Délai de connexion dépassé (réseau lent).")), 6000));
+                
+                const userCredential = await Promise.race([loginPromise, timeoutPromise]);
                 const uid = userCredential.user.uid;
 
-                const docSnap = await getDoc(doc(db, "users", uid));
-                if (docSnap.exists()) {
-                    userData = docSnap.data();
-                } else {
+                let profileLoaded = false;
+                try {
+                    const docSnap = await getDoc(doc(db, "users", uid));
+                    if (docSnap.exists()) {
+                        userData = docSnap.data();
+                        profileLoaded = true;
+                    }
+                } catch (err) {
+                    console.warn("Impossible de charger le profil Firestore, mode par défaut activé.", err);
+                }
+
+                if (!profileLoaded) {
                     userData = { name: "Utilisateur", email, role: "client" };
                 }
 
@@ -1379,7 +1396,7 @@
                 showUploading(false);
                 alert("Erreur de connexion : " + e.message);
             }
-        }
+        };
 
         window.logoutUser = async function() {
             await signOut(auth);
