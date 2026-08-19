@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkUp - Application Social E-Commerce Sécurisée</title>
-    
-    <!-- SDK FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
     <style>
         :root {
             --primary: #007AFF;
@@ -655,11 +649,11 @@
 
     <div id="uploadingOverlay">
         <div class="spinner"></div>
-        <span id="uploadStatusText">Envoi sécurisé en cours...</span>
+        <span id="uploadStatusText">Envoi sécurisé des images en cours...</span>
     </div>
 
     <header>
-        <h1>LinkUp Social</h1>
+        <h1>BAG BAH</h1>
         <div class="header-actions" id="headerActions"></div>
     </header>
 
@@ -724,7 +718,6 @@
         </button>
     </nav>
 
-    <!-- MODAL AUTHENTIFICATION -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -876,30 +869,36 @@
         </div>
     </div>
 
-    <script>
-        // --- 1. CONFIGURATION FIREBASE & CLOUDINARY ---
-        const firebaseConfig = {
-            apiKey: "VOTRE_API_KEY",
-            authDomain: "votre-projet.firebaseapp.com",
-            projectId: "votre-projet",
-            storageBucket: "votre-projet.appspot.com",
-            messagingSenderId: "VOTRE_SENDER_ID",
-            appId: "VOTRE_APP_ID"
-        };
-
-        // Initialisation de Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const CLOUD_CONFIG = {
             name: "in3wd1wv", 
             preset: "linkup_preset"
         };
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyB16I2vKFHKQC01NEXG4mblHeMm0EN02b4",
+            authDomain: "guinemarche.firebaseapp.com",
+            databaseURL: "https://guinemarche-default-rtdb.firebaseio.com",
+            projectId: "guinemarche",
+            storageBucket: "guinemarche.firebasestorage.app",
+            messagingSenderId: "135735772771",
+            appId: "1:135735772771:web:5432085958e2ea08e91a56",
+            measurementId: "G-8MZ7TG7L4Z"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         let currentUser = null;
+        let userData = null;
         let products = [];
-        let myOrders = [];
+        let myOrders = JSON.parse(localStorage.getItem('mg_orders')) || [];
         let selectedRole = "client";
         let paymentType = "before";
         let selectedOperatorName = "Orange Money";
@@ -908,7 +907,7 @@
         let appSettings = JSON.parse(localStorage.getItem('mg_settings')) || { darkMode: false, notifications: true, hidePhone: false };
         if(appSettings.darkMode) document.body.classList.add('dark-mode');
 
-        function showUploading(show, text = "Envoi sécurisé en cours...") {
+        window.showUploading = function(show, text = "Envoi sécurisé en cours...") {
             const overlay = document.getElementById('uploadingOverlay');
             document.getElementById('uploadStatusText').innerText = text;
             overlay.style.display = show ? 'flex' : 'none';
@@ -936,127 +935,17 @@
             }
         }
 
-        // --- 2. GESTION DES DONNÉES EN TEMPS RÉEL (FIRESTORE) ---
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // Récupérer le profil Firestore associé à l'utilisateur connecté
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    currentUser = { uid: user.uid, ...doc.data() };
-                }
-            } else {
-                currentUser = null;
-            }
-            updateHeader();
-            fetchProducts();
-            if(currentUser) fetchOrders();
-        });
-
-        function fetchProducts() {
-            db.collection('products').orderBy('id', 'desc').onSnapshot((snapshot) => {
-                products = [];
-                snapshot.forEach((doc) => {
-                    products.push({ firestoreId: doc.id, ...doc.data() });
-                });
-                renderFeed();
-                if(document.getElementById('tab-sell').classList.contains('active')) {
-                    renderSellTab();
-                }
-            });
-        }
-
-        function fetchOrders() {
-            db.collection('orders').where('buyerUid', '==', currentUser.uid).onSnapshot((snapshot) => {
-                myOrders = [];
-                snapshot.forEach((doc) => {
-                    myOrders.push({ firestoreId: doc.id, ...doc.data() });
-                });
-                if(document.getElementById('tab-orders').classList.contains('active')) {
-                    renderOrdersTab();
-                }
-            });
-        }
-
-        // --- 3. AUTHENTIFICATION FIREBASE ---
-        async function handleRegister() {
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const password = document.getElementById('regPass').value.trim();
-            const location = document.getElementById('regLocation').value.trim();
-            const avatarFile = document.getElementById('regAvatarFile').files[0];
-
-            if(!name || !email || !phone || !password || !location) { alert("Remplissez tous les champs."); return; }
-
-            let avatarUrl = "";
-            try {
-                if(avatarFile) {
-                    showUploading(true, "Envoi de votre photo de profil...");
-                    avatarUrl = await uploadFileToCloudinary(avatarFile);
-                }
-            } catch (e) {
-                showUploading(false);
-                return;
-            } finally {
-                showUploading(false);
-            }
-
-            try {
-                showUploading(true, "Création du compte Firebase...");
-                const creds = await auth.createUserWithEmailAndPassword(email, password);
-                const uid = creds.user.uid;
-
-                const newUser = { uid, name, email, phone, location, avatar: avatarUrl, role: selectedRole };
-                await db.collection('users').doc(uid).set(newUser);
-
-                showUploading(false);
-                alert("Compte créé avec succès !");
-                closeAuthModal();
-                switchTab(selectedRole === 'vendor' ? 'sell' : 'feed');
-            } catch (error) {
-                showUploading(false);
-                alert("Erreur d'inscription : " + error.message);
-            }
-        }
-
-        async function handleLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPass').value.trim();
-
-            if(!email || !password) { alert("Veuillez remplir l'email et le mot de passe."); return; }
-
-            try {
-                showUploading(true, "Connexion en cours...");
-                await auth.signInWithEmailAndPassword(email, password);
-                showUploading(false);
-                alert("Connexion réussie !");
-                closeAuthModal();
-            } catch (error) {
-                showUploading(false);
-                alert("Identifiants incorrects ou erreur : " + error.message);
-            }
-        }
-
-        async function logout() {
-            await auth.signOut();
-            currentUser = null;
-            myOrders = [];
-            updateHeader();
-            switchTab('feed');
-        }
-
-        // --- 4. NAVIGATION ET RENDU DE L'UI ---
-        function updateHeader() {
+        async function updateHeader() {
             const headerActions = document.getElementById('headerActions');
-            if (currentUser) {
-                headerActions.innerHTML = `<button class="btn-outline" onclick="logout()">Déconnexion</button>`;
+            if (currentUser && userData) {
+                headerActions.innerHTML = `<button class="btn-outline" onclick="window.logoutUser()">Déconnexion</button>`;
             } else {
-                headerActions.innerHTML = `<button class="btn-main" onclick="openAuthModal('login')">Connexion</button>`;
+                headerActions.innerHTML = `<button class="btn-main" onclick="window.openAuthModal('login')">Connexion</button>`;
             }
-            renderProfileTab();
+            window.renderProfileTab();
         }
 
-        function switchTab(tabName, element) {
+        window.switchTab = function(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.bottom-nav button').forEach(el => el.classList.remove('active'));
             
@@ -1073,13 +962,26 @@
                 if(tabName === 'profile') buttons[3].classList.add('active');
             }
 
-            if(tabName === 'feed') renderFeed();
-            if(tabName === 'sell') renderSellTab();
-            if(tabName === 'orders') renderOrdersTab();
-            if(tabName === 'profile') renderProfileTab();
+            if(tabName === 'feed') window.loadProducts();
+            if(tabName === 'sell') window.renderSellTab();
+            if(tabName === 'orders') window.renderOrdersTab();
+            if(tabName === 'profile') window.renderProfileTab();
         }
 
-        function renderFeed() {
+        window.loadProducts = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "products"));
+                products = [];
+                querySnapshot.forEach((docSnap) => {
+                    products.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                window.renderFeed();
+            } catch (e) {
+                console.error("Erreur de chargement des produits:", e);
+            }
+        }
+
+        window.renderFeed = function() {
             const container = document.getElementById('feedContainer');
             container.innerHTML = '';
             
@@ -1089,7 +991,7 @@
             }
 
             products.forEach((p, pIndex) => {
-                let avatarHtml = p.avatar ? `<img src="${p.avatar}" class="avatar">` : `<div class="avatar">${p.seller.charAt(0).toUpperCase()}</div>`;
+                let avatarHtml = p.avatar ? `<img src="${p.avatar}" class="avatar">` : `<div class="avatar">${(p.seller || 'U').charAt(0).toUpperCase()}</div>`;
                 let isSold = p.status === 'sold';
                 
                 let imagesArray = p.images && p.images.length > 0 ? p.images : [];
@@ -1098,14 +1000,14 @@
                 let slides = imagesArray.map(img => `<div class="carousel-slide"><img src="${img}" loading="lazy"></div>`).join('');
                 let dots = imagesArray.length > 1 ? imagesArray.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" data-slide="${i}"></span>`).join('') : '';
                 let controls = imagesArray.length > 1 ? `
-                    <button class="carousel-btn carousel-prev" onclick="event.stopPropagation(); moveSlide(${pIndex}, -1)">&#10094;</button>
-                    <button class="carousel-btn carousel-next" onclick="event.stopPropagation(); moveSlide(${pIndex}, 1)">&#10095;</button>
-                    <div class="carousel-dots" id="dots-${pIndex}">${dots}</div>
+                    <button class="carousel-btn carousel-prev" onclick="event.stopPropagation(); window.moveSlide('${p.id}', -1)">&#10094;</button>
+                    <button class="carousel-btn carousel-next" onclick="event.stopPropagation(); window.moveSlide('${p.id}', 1)">&#10095;</button>
+                    <div class="carousel-dots" id="dots-${p.id}">${dots}</div>
                 ` : '';
 
                 let carouselHtml = `
-                    <div class="carousel-container" id="carousel-${pIndex}" data-current="0" data-total="${imagesArray.length}">
-                        <div class="carousel-track" id="track-${pIndex}">
+                    <div class="carousel-container" id="carousel-${p.id}" data-current="0" data-total="${imagesArray.length}">
+                        <div class="carousel-track" id="track-${p.id}">
                             ${slides}
                         </div>
                         ${controls}
@@ -1122,7 +1024,7 @@
                                 <span>📍 ${p.location || 'Guinée'}</span>
                             </div>
                         </div>
-                        <div onclick="openProductDetail('${p.firestoreId}')">
+                        <div onclick="window.openProductDetail('${p.id}')">
                             ${carouselHtml}
                             <div class="feed-body">
                                 <div class="feed-title">${p.title}</div>
@@ -1133,7 +1035,7 @@
                         <div class="feed-actions">
                             ${isSold ? 
                                 '<button class="btn-outline" style="flex:1; opacity:0.5; cursor:not-allowed;" disabled>Article Vendu</button>' : 
-                                `<button class="btn-main" style="flex:1;" onclick="openProductDetail('${p.firestoreId}')">Acheter</button>`
+                                `<button class="btn-main" style="flex:1;" onclick="window.openProductDetail('${p.id}')">Acheter</button>`
                             }
                         </div>
                     </div>
@@ -1141,9 +1043,9 @@
             });
         }
 
-        function moveSlide(pIndex, direction) {
-            const carousel = document.getElementById(`carousel-${pIndex}`);
-            const track = document.getElementById(`track-${pIndex}`);
+        window.moveSlide = function(pId, direction) {
+            const carousel = document.getElementById(`carousel-${pId}`);
+            const track = document.getElementById(`track-${pId}`);
             let current = parseInt(carousel.getAttribute('data-current'));
             let total = parseInt(carousel.getAttribute('data-total'));
 
@@ -1154,7 +1056,7 @@
             carousel.setAttribute('data-current', current);
             track.style.transform = `translateX(-${current * 100}%)`;
 
-            const dotsContainer = document.getElementById(`dots-${pIndex}`);
+            const dotsContainer = document.getElementById(`dots-${pId}`);
             if (dotsContainer) {
                 Array.from(dotsContainer.children).forEach((dot, idx) => {
                     dot.classList.toggle('active', idx === current);
@@ -1162,8 +1064,8 @@
             }
         }
 
-        function openProductDetail(firestoreId) {
-            const product = products.find(p => p.firestoreId === firestoreId);
+        window.openProductDetail = function(productId) {
+            const product = products.find(p => p.id === productId);
             if(!product) return;
             activeProductDetails = product;
 
@@ -1172,18 +1074,18 @@
             document.getElementById('detailSeller').innerText = "Vendeur : " + product.seller;
             document.getElementById('detailDesc').innerText = product.desc || "Aucune description fournie.";
 
-            if(currentUser) {
-                document.getElementById('deliveryName').value = currentUser.name || '';
-                document.getElementById('deliveryPhone').value = currentUser.phone || '';
-                document.getElementById('deliveryCity').value = currentUser.location || '';
+            if(userData) {
+                document.getElementById('deliveryName').value = userData.name || '';
+                document.getElementById('deliveryPhone').value = userData.phone || '';
+                document.getElementById('deliveryCity').value = userData.location || '';
             }
 
             let imagesArray = product.images || [];
             let slides = imagesArray.map(img => `<div class="carousel-slide"><img src="${img}"></div>`).join('');
             let dots = imagesArray.length > 1 ? imagesArray.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}"></span>`).join('') : '';
             let controls = imagesArray.length > 1 ? `
-                <button class="carousel-btn carousel-prev" onclick="moveDetailSlide(-1)">&#10094;</button>
-                <button class="carousel-btn carousel-next" onclick="moveDetailSlide(1)">&#10095;</button>
+                <button class="carousel-btn carousel-prev" onclick="window.moveDetailSlide(-1)">&#10094;</button>
+                <button class="carousel-btn carousel-next" onclick="window.moveDetailSlide(1)">&#10095;</button>
                 <div class="carousel-dots" id="detailDots">${dots}</div>
             ` : '';
 
@@ -1197,11 +1099,11 @@
             document.getElementById('productDetailModal').style.display = 'flex';
         }
 
-        function closeProductDetailModal() {
+        window.closeProductDetailModal = function() {
             document.getElementById('productDetailModal').style.display = 'none';
         }
 
-        function moveDetailSlide(direction) {
+        window.moveDetailSlide = function(direction) {
             const carousel = document.getElementById('detailCarousel');
             if(!carousel) return;
             const track = document.getElementById('detailTrack');
@@ -1223,22 +1125,20 @@
             }
         }
 
-        function selectPaymentCage(type) {
+        window.selectPaymentCage = function(type) {
             paymentType = type;
             document.getElementById('cageBefore').classList.toggle('selected', type === 'before');
             document.getElementById('cageAfter').classList.toggle('selected', type === 'after');
             document.getElementById('mobileMoneySection').style.display = (type === 'before') ? 'block' : 'none';
         }
 
-        function selectOperator(op) {
+        window.selectOperator = function(op) {
             selectedOperatorName = op;
             document.getElementById('optOrange').classList.toggle('selected', op === 'Orange Money');
             document.getElementById('optMtn').classList.toggle('selected', op === 'MTN MoMo');
         }
 
-        async function confirmOrderWithDetails() {
-            if(!currentUser) { alert("Connectez-vous pour passer une commande."); openAuthModal('login'); return; }
-
+        window.confirmOrderWithDetails = function() {
             const name = document.getElementById('deliveryName').value.trim();
             const phone = document.getElementById('deliveryPhone').value.trim();
             const city = document.getElementById('deliveryCity').value.trim();
@@ -1253,34 +1153,30 @@
             let paymentModeDesc = paymentType === 'before' ? `Payer avant (${selectedOperatorName})` : "Payer à la livraison";
 
             let orderData = {
-                buyerUid: currentUser.uid,
                 title: activeProductDetails.title,
                 price: activeProductDetails.price,
                 seller: activeProductDetails.seller,
                 paymentMode: paymentModeDesc,
                 status: 'En attente ⏳',
-                deliveryInfo: { name, phone, city, district, address },
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                deliveryInfo: { name, phone, city, district, address }
             };
 
-            try {
-                await db.collection('orders').add(orderData);
-                closeProductDetailModal();
-                alert("Commande validée et enregistrée en ligne !");
-                switchTab('orders');
-            } catch (e) {
-                alert("Erreur lors de la commande : " + e.message);
-            }
+            myOrders.unshift(orderData);
+            localStorage.setItem('mg_orders', JSON.stringify(myOrders));
+
+            window.closeProductDetailModal();
+            alert("Commande validée avec succès !");
+            window.switchTab('orders');
         }
 
-        function renderSellTab() {
+        window.renderSellTab = function() {
             const container = document.getElementById('myProductsContainer');
-            if(!currentUser) {
+            if(!userData) {
                 container.innerHTML = `
                     <div class="profile-box">
                         <h3>Espace Vendeur</h3>
                         <p style="font-size:13px; color:var(--text-secondary); margin: 10px 0;">Connectez-vous pour gérer vos publications.</p>
-                        <button class="btn-main" onclick="openAuthModal('login')">Se connecter</button>
+                        <button class="btn-main" onclick="window.openAuthModal('login')">Se connecter</button>
                     </div>
                 `;
                 document.getElementById('vendorDashboard').style.display = 'none';
@@ -1288,7 +1184,7 @@
             }
 
             document.getElementById('vendorDashboard').style.display = 'grid';
-            let userProducts = products.filter(p => p.seller === currentUser.name);
+            let userProducts = products.filter(p => p.seller === userData.name);
 
             let activeCount = userProducts.filter(p => p.status === 'active').length;
             let soldCount = userProducts.filter(p => p.status === 'sold').length;
@@ -1311,16 +1207,16 @@
                     </div>
                     <div style="display: flex; gap: 6px;">
                         ${p.status === 'active' ? 
-                            `<button class="btn-outline" style="color: #34C759; border-color: #34C759;" onclick="updateProductStatus('${p.firestoreId}', 'sold')">Vendu</button>` : 
-                            `<button class="btn-outline" onclick="updateProductStatus('${p.firestoreId}', 'active')">Remettre</button>`
+                            `<button class="btn-outline" style="color: #34C759; border-color: #34C759;" onclick="window.updateProductStatus('${p.id}', 'sold')">Vendu</button>` : 
+                            `<button class="btn-outline" onclick="window.updateProductStatus('${p.id}', 'active')">Remettre</button>`
                         }
-                        <button class="btn-outline" style="color: #FF3B30; border-color: #FF3B30;" onclick="deleteProduct('${p.firestoreId}')">Suppr</button>
+                        <button class="btn-outline" style="color: #FF3B30; border-color: #FF3B30;" onclick="window.deleteProduct('${p.id}')">Suppr</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderOrdersTab() {
+        window.renderOrdersTab = function() {
             const container = document.getElementById('ordersContainer');
             container.innerHTML = '';
 
@@ -1350,34 +1246,34 @@
             });
         }
 
-        function renderProfileTab() {
+        window.renderProfileTab = function() {
             const container = document.getElementById('profileContainer');
-            if(!currentUser) {
+            if(!userData) {
                 container.innerHTML = `
                     <div class="profile-box">
                         <h3>Mon Profil</h3>
                         <p style="font-size:13px; color:var(--text-secondary); margin: 10px 0;">Connectez-vous pour voir vos informations.</p>
-                        <button class="btn-main" onclick="openAuthModal('login')">Se connecter</button>
+                        <button class="btn-main" onclick="window.openAuthModal('login')">Se connecter</button>
                     </div>
                 `;
                 return;
             }
 
-            let avatarLargeHtml = currentUser.avatar ? 
-                `<img src="${currentUser.avatar}" class="profile-avatar-large">` : 
-                `<div class="profile-avatar-large">${currentUser.name.charAt(0).toUpperCase()}</div>`;
+            let avatarLargeHtml = userData.avatar ? 
+                `<img src="${userData.avatar}" class="profile-avatar-large">` : 
+                `<div class="profile-avatar-large">${userData.name.charAt(0).toUpperCase()}</div>`;
 
-            let roleBadge = currentUser.role === 'vendor' ? '🏷️ Vendeur' : '🛒 Client';
-            let displayPhone = appSettings.hidePhone ? 'Masqué' : currentUser.phone;
+            let roleBadge = userData.role === 'vendor' ? '🏷️ Vendeur' : '🛒 Client';
+            let displayPhone = appSettings.hidePhone ? 'Masqué' : userData.phone;
 
             container.innerHTML = `
                 <div class="profile-box">
                     ${avatarLargeHtml}
-                    <h3>${currentUser.name}</h3>
+                    <h3>${userData.name}</h3>
                     <p style="font-size:13px; color:var(--primary); margin-top:5px; font-weight:700;">Compte : ${roleBadge}</p>
-                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">✉️ ${currentUser.email}</p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">✉️ ${userData.email}</p>
                     <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">📞 ${displayPhone}</p>
-                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">📍 ${currentUser.location}</p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">📍 ${userData.location}</p>
                 </div>
 
                 <div class="settings-section">
@@ -1385,14 +1281,14 @@
                     <div class="settings-item">
                         <span>Mode Sombre (iOS Glace)</span>
                         <label class="switch">
-                            <input type="checkbox" ${appSettings.darkMode ? 'checked' : ''} onchange="toggleDarkMode(this)">
+                            <input type="checkbox" ${appSettings.darkMode ? 'checked' : ''} onchange="window.toggleDarkMode(this)">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="settings-item">
                         <span>Masquer mon téléphone</span>
                         <label class="switch">
-                            <input type="checkbox" ${appSettings.hidePhone ? 'checked' : ''} onchange="toggleSetting('hidePhone', this)">
+                            <input type="checkbox" ${appSettings.hidePhone ? 'checked' : ''} onchange="window.toggleSetting('hidePhone', this)">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -1400,13 +1296,13 @@
             `;
         }
 
-        function openAuthModal(mode) {
+        window.openAuthModal = function(mode) {
             document.getElementById('authModal').style.display = 'flex';
-            switchAuthMode(mode);
+            window.switchAuthMode(mode);
         }
-        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+        window.closeAuthModal = function() { document.getElementById('authModal').style.display = 'none'; }
 
-        function switchAuthMode(mode) {
+        window.switchAuthMode = function(mode) {
             if(mode === 'login') {
                 document.getElementById('authTitle').innerText = "Connexion";
                 document.getElementById('loginFormSection').style.display = 'block';
@@ -1418,32 +1314,101 @@
             }
         }
 
-        function selectRole(role) {
+        window.selectRole = function(role) {
             selectedRole = role;
             document.getElementById('roleClient').classList.toggle('selected', role === 'client');
             document.getElementById('roleVendor').classList.toggle('selected', role === 'vendor');
         }
 
-        function toggleDarkMode(checkbox) {
+        window.handleRegister = async function() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPass').value.trim();
+            const location = document.getElementById('regLocation').value.trim();
+            const avatarFile = document.getElementById('regAvatarFile').files[0];
+
+            if(!name || !email || !phone || !password || !location) { alert("Remplissez tous les champs."); return; }
+
+            let avatarUrl = "";
+            try {
+                if(avatarFile) {
+                    showUploading(true, "Envoi de votre photo de profil...");
+                    avatarUrl = await uploadFileToCloudinary(avatarFile);
+                }
+                showUploading(true, "Création du compte Firebase...");
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const uid = userCredential.user.uid;
+
+                userData = { name, email, phone, location, avatar: avatarUrl, role: selectedRole };
+                await setDoc(doc(db, "users", uid), userData);
+
+                showUploading(false);
+                alert("Compte créé avec succès !");
+                window.closeAuthModal();
+                window.switchTab(selectedRole === 'vendor' ? 'sell' : 'feed');
+            } catch (e) {
+                showUploading(false);
+                alert("Erreur lors de l'inscription : " + e.message);
+            }
+        }
+
+        window.handleLogin = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+
+            if(!email || !password) { alert("Veuillez remplir l'email et le mot de passe."); return; }
+
+            try {
+                showUploading(true, "Connexion en cours...");
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const uid = userCredential.user.uid;
+
+                const docSnap = await getDoc(doc(db, "users", uid));
+                if (docSnap.exists()) {
+                    userData = docSnap.data();
+                } else {
+                    userData = { name: "Utilisateur", email, role: "client" };
+                }
+
+                showUploading(false);
+                alert("Connexion réussie !");
+                window.closeAuthModal();
+                window.switchTab(userData.role === 'vendor' ? 'sell' : 'feed');
+            } catch (e) {
+                showUploading(false);
+                alert("Erreur de connexion : " + e.message);
+            }
+        }
+
+        window.logoutUser = async function() {
+            await signOut(auth);
+            currentUser = null;
+            userData = null;
+            updateHeader();
+            window.switchTab('feed');
+        }
+
+        window.toggleDarkMode = function(checkbox) {
             appSettings.darkMode = checkbox.checked;
             localStorage.setItem('mg_settings', JSON.stringify(appSettings));
             if(appSettings.darkMode) document.body.classList.add('dark-mode');
             else document.body.classList.remove('dark-mode');
         }
 
-        function toggleSetting(key, checkbox) {
+        window.toggleSetting = function(key, checkbox) {
             appSettings[key] = checkbox.checked;
             localStorage.setItem('mg_settings', JSON.stringify(appSettings));
-            renderProfileTab();
+            window.renderProfileTab();
         }
 
-        function openAddModal() {
-            if(!currentUser) { alert("Connectez-vous pour publier."); openAuthModal('login'); return; }
+        window.openAddModal = function() {
+            if(!currentUser) { alert("Connectez-vous pour publier."); window.openAuthModal('login'); return; }
             document.getElementById('addModal').style.display = 'flex';
         }
-        function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+        window.closeAddModal = function() { document.getElementById('addModal').style.display = 'none'; }
 
-        async function publishProductWithCloudinary() {
+        window.publishProductWithCloudinary = async function() {
             const title = document.getElementById('newTitle').value.trim();
             const desc = document.getElementById('newDesc').value.trim();
             let priceNum = parseFloat(document.getElementById('newPriceNum').value);
@@ -1461,61 +1426,75 @@
                     let secureUrl = await uploadFileToCloudinary(files[i]);
                     imagesUrls.push(secureUrl);
                 }
-            } catch (err) {
-                showUploading(false);
-                return;
-            } finally {
-                showUploading(false);
-            }
 
-            let productData = {
-                id: Date.now(), 
-                title, 
-                desc,
-                priceNum: priceNum,
-                price: priceNum.toLocaleString() + " GNF", 
-                seller: currentUser.name, 
-                avatar: currentUser.avatar || "", 
-                location: currentUser.location, 
-                images: imagesUrls,
-                status: 'active'
-            };
+                document.getElementById('uploadStatusText').innerText = "Enregistrement de l'annonce...";
+                await addDoc(collection(db, "products"), {
+                    title,
+                    desc,
+                    priceNum,
+                    price: priceNum.toLocaleString() + " GNF",
+                    seller: userData.name,
+                    avatar: userData.avatar || "",
+                    location: userData.location || "Conakry",
+                    images: imagesUrls,
+                    status: 'active',
+                    createdAt: Date.now()
+                });
 
-            try {
-                showUploading(true, "Publication sur Firestore...");
-                await db.collection('products').add(productData);
                 showUploading(false);
-
-                closeAddModal();
+                window.closeAddModal();
                 document.getElementById('newTitle').value = '';
                 document.getElementById('newDesc').value = '';
                 document.getElementById('newPriceNum').value = '';
                 document.getElementById('newImagesFiles').value = '';
                 
-                switchTab('feed');
-            } catch (e) {
+                window.loadProducts();
+                window.switchTab('feed');
+            } catch (err) {
                 showUploading(false);
-                alert("Erreur lors de la publication : " + e.message);
+                alert("Erreur lors de la publication : " + err.message);
             }
         }
 
-        async function updateProductStatus(firestoreId, newStatus) {
+        window.updateProductStatus = async function(id, newStatus) {
             try {
-                await db.collection('products').doc(firestoreId).update({ status: newStatus });
+                await updateDoc(doc(db, "products", id), { status: newStatus });
+                window.loadProducts();
+                window.renderSellTab();
             } catch (e) {
                 alert("Erreur de mise à jour : " + e.message);
             }
         }
 
-        async function deleteProduct(firestoreId) {
-            if(confirm("Voulez-vous vraiment supprimer cet article ?")) {
-                try {
-                    await db.collection('products').doc(firestoreId).delete();
-                } catch (e) {
-                    alert("Erreur de suppression : " + e.message);
-                }
+        window.deleteProduct = async function(id) {
+            if(!confirm("Voulez-vous vraiment supprimer cet article ?")) return;
+            try {
+                await deleteDoc(doc(db, "products", id));
+                window.loadProducts();
+                window.renderSellTab();
+            } catch (e) {
+                alert("Erreur de suppression : " + e.message);
             }
         }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists()) {
+                        userData = docSnap.data();
+                    }
+                } catch (e) {
+                    console.error("Erreur récupération profil:", e);
+                }
+            } else {
+                currentUser = null;
+                userData = null;
+            }
+            updateHeader();
+            window.loadProducts();
+        });
     </script>
 </body>
 </html>
