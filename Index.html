@@ -1,167 +1,532 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Guinée Web — L'assistant du quotidien</title>
-  <style>
-    :root{--g:#0b8f55;--r:#d92d3f;--y:#f5c542;--ink:#14231d;--muted:#68766f;--bg:#f5f8f6;--line:#e4ebe7}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Arial;color:var(--ink);background:var(--bg)}
-    button,input{font:inherit}
-    .wrap{max-width:1100px;margin:auto;padding:0 18px}
-    header{position:sticky;top:0;background:#fffffff2;border-bottom:1px solid var(--line);z-index:5}
-    .nav{height:68px;display:flex;justify-content:space-between;align-items:center}
-    .brand{font-weight:900;font-size:20px;display:flex;gap:10px;align-items:center}
-    .flag{display:flex;width:34px;height:34px;border-radius:10px;overflow:hidden}
-    .flag i{flex:1}
-    .flag i:nth-child(1){background:var(--r)}
-    .flag i:nth-child(2){background:var(--y)}
-    .flag i:nth-child(3){background:var(--g)}
-    .primary,.ghost{border:0;border-radius:13px;padding:11px 15px;font-weight:800}
-    .primary{background:var(--g);color:white}
-    .ghost{background:#edf3ef}
-    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:50px 0 25px}
-    .badge{color:var(--g);background:#e4f7ed;border-radius:99px;padding:8px 12px;font-weight:800}
-    h1{font-size:clamp(38px,6vw,64px);line-height:1.02;margin:16px 0}
-    .hero p{font-size:18px;color:var(--muted);line-height:1.6}
-    .search{display:flex;background:white;border:1px solid var(--line);padding:7px;border-radius:18px}
-    .search input{flex:1;border:0;outline:0;padding:12px}
-    .search button{background:var(--g);color:white;border:0;border-radius:12px;padding:12px 16px;font-weight:800}
-    .phone{max-width:330px;margin:auto;background:#101814;padding:12px;border-radius:32px;box-shadow:0 25px 60px #0003}
-    .screen{background:#f7fbf8;border-radius:23px;padding:18px;min-height:500px}
-    .mini,.card{background:white;border:1px solid var(--line);border-radius:18px;padding:16px}
-    .cats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
-    .cat{text-align:center;background:white;border:1px solid var(--line);border-radius:14px;padding:10px;font-size:12px;font-weight:750}
-    .cat b{display:block;font-size:22px}
-    section{padding:25px 0}
-    .title{display:flex;justify-content:space-between;align-items:end;margin-bottom:15px}
-    .title h2{margin:0}
-    .muted{color:var(--muted)}
-    .features,.products{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .feature{background:white;border:1px solid var(--line);border-radius:20px;padding:18px}
-    .feature b{font-size:28px}
-    .feature p{color:var(--muted)}
-    .pic{height:130px;border-radius:15px;background:#eaf6ef;display:grid;place-items:center;font-size:55px}
-    .price{font-weight:900;color:var(--g)}
-    .banner{background:linear-gradient(135deg,#087b49,#16b96e);color:white;border-radius:24px;padding:25px;display:flex;justify-content:space-between;gap:15px;align-items:center}
-    .banner button{background:white;color:var(--g);border:0;border-radius:13px;padding:12px 15px;font-weight:800}
-    .map{height:240px;border-radius:22px;background:linear-gradient(#dcefe4 1px,transparent 1px),linear-gradient(90deg,#dcefe4 1px,transparent 1px),#eef7f1;background-size:40px 40px;position:relative}
-    .pin{position:absolute;background:var(--r);color:white;border-radius:50% 50% 50% 0;width:28px;height:28px;transform:rotate(-45deg);display:grid;place-items:center}
-    .pin span{transform:rotate(45deg)}
-    footer{text-align:center;padding:30px;color:var(--muted)}
-    .modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}
-    .modal.open{display:flex}
-    .box{background:white;border-radius:23px;padding:23px;max-width:430px;width:100%}
-    .box input{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;margin:6px 0 14px}
-    .methods{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-    .methods button{padding:13px;border:1px solid var(--line);border-radius:12px;background:white}
-    .methods .active{border:2px solid var(--g)}
-    @media(max-width:780px){.hero{grid-template-columns:1fr}.features,.products{grid-template-columns:1fr}.banner{display:block}.nav .ghost{display:none}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guinée Web - iOS Edition</title>
+    <!-- SDK Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --ios-accent: #007aff;
+            --ios-accent-gradient: linear-gradient(135deg, #007aff, #5856d6);
+            --ios-bg: linear-gradient(180deg, #e4e9f2 0%, #d5dde8 100%);
+            --glass-bg-card: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+            --text-color: #1c1c1e;
+            --text-secondary: #8e8e93;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background: var(--ios-bg); 
+            background-attachment: fixed;
+            color: var(--text-color); 
+            padding-bottom: 40px; 
+            min-height: 100vh;
+        }
+
+        /* HEADER GLASSMORPHISM iOS */
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 16px; height: 60px;
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .logo { 
+            font-size: 22px; 
+            font-weight: 800; 
+            background: var(--ios-accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn {
+            background: transparent; 
+            border: none; 
+            padding: 8px 14px;
+            border-radius: 16px; 
+            font-weight: 600; 
+            font-size: 13px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            outline: none;
+        }
+
+        .nav-btn:active { transform: scale(0.92); }
+
+        .nav-btn.active {
+            background: #ffffff;
+            color: var(--ios-accent);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: scale(1.02);
+        }
+
+        .container { max-width: 600px; margin: 20px auto; padding: 0 12px; }
+
+        /* CARTES EN VERRE TRANSLUCIDE */
+        .card {
+            background: var(--glass-bg-card);
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 16px; 
+            margin-bottom: 18px;
+            box-shadow: var(--glass-shadow);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px 0 rgba(31, 38, 135, 0.12);
+        }
+
+        /* FORMULAIRES */
+        textarea, input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+            padding: 12px;
+            font-size: 15px;
+            color: var(--text-color);
+            outline: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus, input:focus {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: var(--ios-accent);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px; 
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px; 
+            cursor: pointer; 
+            font-size: 13px; 
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .file-input-label:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .btn-primary {
+            background: var(--ios-accent-gradient);
+            color: white; 
+            border: none;
+            padding: 12px 18px; 
+            border-radius: 16px; 
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer; 
+            width: 100%; 
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+        }
+
+        /* FIL D'ACTUALITÉ ET POSTS */
+        .post-author { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .post-author-name { font-weight: 700; font-size: 15px; }
+        .post-time { font-size: 12px; color: var(--text-secondary); }
+        .post-caption { margin-bottom: 12px; font-size: 15px; line-height: 1.45; }
+        .post-media { width: 100%; max-height: 450px; object-fit: cover; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .post-actions {
+            display: flex; justify-content: space-around;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 10px; margin-top: 12px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: var(--text-color);
+            font-weight: 600; font-size: 13px; 
+            cursor: pointer; width: 48%; padding: 8px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:active { transform: scale(0.95); }
+
+        .action-btn.liked {
+            background: rgba(0, 122, 255, 0.12);
+            color: var(--ios-accent);
+            border-color: rgba(0, 122, 255, 0.3);
+        }
+
+        .comments-container { 
+            margin-top: 12px; 
+            display: none; 
+            animation: slideDown 0.3s ease-out forwards;
+        }
+
+        .comment-item { 
+            background: rgba(255, 255, 255, 0.5); 
+            padding: 10px 14px; 
+            border-radius: 12px; 
+            margin-bottom: 6px; 
+            font-size: 13px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .hidden { display: none !important; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="wrap nav">
-      <div class="brand"><span class="flag"><i></i><i></i><i></i></span>GUINÉE WEB</div>
-      <button class="primary" onclick="openPay()">Payer une commande</button>
-    </div>
-  </header>
-  <main class="wrap">
-    <section class="hero">
-      <div>
-        <span class="badge">L'ASSISTANT DU QUOTIDIEN 🇬🇳</span>
-        <h1>Tout ce dont vous avez besoin, au même endroit.</h1>
-        <p>Achetez local, trouvez un professionnel, découvrez les services proches et gérez vos commandes simplement.</p>
-        <div class="search">
-          <input id="q" placeholder="J'ai besoin de..." oninput="render()">
-          <button onclick="render()">Chercher</button>
+
+    <header>
+        <div class="logo">Guinée Web</div>
+        <div id="nav-actions" class="nav-container hidden">
+            <button id="tab-feed" class="nav-btn active" onclick="showView('feed')">Fil</button>
+            <button id="tab-profile" class="nav-btn" onclick="showView('profile')">Profil</button>
+            <button class="nav-btn" style="color:#ff3b30;" onclick="logout()">Sortir</button>
         </div>
-      </div>
-      <div class="phone">
-        <div class="screen">
-          <small>Bonjour !</small>
-          <h3>De quoi avez-vous besoin aujourd'hui ?</h3>
-          <div class="mini">J'ai besoin de... 🔎</div>
-          <div class="cats">
-            <div class="cat"><b>🛍️</b>Acheter</div>
-            <div class="cat"><b>🔧</b>Professionnels</div>
-            <div class="cat"><b>📍</b>Autour de moi</div>
-            <div class="cat"><b>🚚</b>Livraison</div>
-            <div class="cat"><b>💼</b>Emploi</div>
-            <div class="cat"><b>•••</b>Plus</div>
-          </div>
-          <div class="card"><b>🍚 Riz local</b><br><span class="price">25 000 GNF</span></div><br>
-          <div class="card"><b>🔧 Électricien</b><br><span class="muted">Disponible</span></div>
+    </header>
+
+    <div class="container">
+
+        <!-- AUTHENTIFICATION -->
+        <div id="auth-view" class="card">
+            <h2 style="text-align:center; margin-bottom:18px; font-weight:800; background:var(--ios-accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Connexion</h2>
+            <input type="email" id="auth-email" placeholder="Adresse e-mail" style="margin-bottom:10px;">
+            <input type="password" id="auth-password" placeholder="Mot de passe" style="margin-bottom:10px;">
+            
+            <div id="signup-extra" class="hidden">
+                <input type="text" id="auth-prenom" placeholder="Prénom" style="margin-bottom:10px;">
+                <input type="text" id="auth-nom" placeholder="Nom" style="margin-bottom:10px;">
+            </div>
+
+            <button id="btn-login" class="btn-primary" onclick="login()">Se connecter</button>
+            <button id="btn-signup" class="btn-primary" style="background: linear-gradient(135deg, #34c759, #30d158); display:none;" onclick="signup()">Créer un compte</button>
+            
+            <p id="toggle-auth-msg" style="text-align:center; margin-top:14px; cursor:pointer; color:var(--ios-accent); font-size:14px; font-weight:600;" onclick="toggleAuthMode()">
+                Pas encore de compte ? S'inscrire
+            </p>
         </div>
-      </div>
-    </section>
-    <section>
-      <div class="title"><h2>Fonctions principales</h2><span class="muted">Pensé pour la Guinée</span></div>
-      <div class="features">
-        <div class="feature"><b>🛒</b><h3>Acheter</h3><p>Produits et commerces locaux.</p></div>
-        <div class="feature"><b>🧰</b><h3>Professionnels</h3><p>Trouvez une personne qualifiée.</p></div>
-        <div class="feature"><b>📍</b><h3>Autour de moi</h3><p>Services à proximité.</p></div>
-        <div class="feature"><b>🚚</b><h3>Livraison</h3><p>Suivi simple des commandes.</p></div>
-        <div class="feature"><b>⭐</b><h3>Confiance</h3><p>Avis et historique.</p></div>
-        <div class="feature"><b>💳</b><h3>Paiement</h3><p>Mode démonstration inclus.</p></div>
-      </div>
-    </section>
-    <section>
-      <div class="title"><h2>Produits et services</h2><span id="count" class="muted"></span></div>
-      <div id="products" class="products"></div>
-    </section>
-    <section>
-      <div class="banner">
-        <div><h2>Besoin d'aide ?</h2><p>Décrivez votre besoin et Guinée Web pourra vous orienter.</p></div>
-        <button onclick="alert('Assistant Guinée Web : dites-moi votre besoin.')">Parler à l'assistant</button>
-      </div>
-    </section>
-    <section>
-      <div class="title"><h2>Autour de vous</h2><span class="muted">Carte de démonstration</span></div>
-      <div class="map">
-        <div class="pin" style="left:18%;top:35%"><span>📍</span></div>
-        <div class="pin" style="left:48%;top:58%"><span>📍</span></div>
-        <div class="pin" style="left:73%;top:25%"><span>📍</span></div>
-        <div class="pin" style="left:62%;top:72%"><span>📍</span></div>
-      </div>
-    </section>
-  </main>
-  <footer>🇬🇳 <b>Guinée Web</b> — Fait en Guinée, pour la Guinée.</footer>
-  <div id="modal" class="modal">
-    <div class="box">
-      <button onclick="closePay()" style="float:right;border:0;border-radius:50%;padding:8px">×</button>
-      <h2>Paiement simulé</h2>
-      <p class="muted">Aucun argent réel ne sera débité.</p>
-      <label>Montant (GNF)<input id="amount" value="25000" inputmode="numeric"></label>
-      <div class="methods">
-        <button class="active">🟠 Orange Money</button>
-        <button>🟡 MTN Mobile Money</button>
-        <button>💵 Cash</button>
-        <button>💳 Carte</button>
-      </div>
-      <br>
-      <button class="primary" style="width:100%" onclick="pay()">Simuler le paiement</button>
-      <div id="result"></div>
+
+        <!-- APPLICATION PRINCIPALE -->
+        <div id="app-view" class="hidden">
+
+            <!-- PROFIL -->
+            <div id="profile-view" class="card hidden">
+                <div style="text-align:center;">
+                    <img id="profile-avatar" class="avatar" style="width:70px; height:70px;" src="https://via.placeholder.com/70" alt="Avatar">
+                    <div id="profile-name" style="font-size:18px; font-weight:700; margin-top:8px;">...</div>
+                    <p id="profile-bio" style="color: var(--text-secondary); font-size:13px; margin-top:4px;"></p>
+                    <button class="nav-btn active" style="margin-top:10px;" onclick="toggleEditProfile()">Modifier profil</button>
+                </div>
+
+                <div id="edit-profile-form" class="hidden" style="margin-top:15px; border-top:1px solid rgba(0,0,0,0.05); padding-top:12px;">
+                    <input type="text" id="edit-prenom" placeholder="Prénom" style="margin-bottom:8px;">
+                    <input type="text" id="edit-nom" placeholder="Nom" style="margin-bottom:8px;">
+                    <textarea id="edit-bio" placeholder="Bio..." style="margin-bottom:8px;"></textarea>
+                    <button class="btn-primary" onclick="saveProfile()">Enregistrer</button>
+                </div>
+            </div>
+
+            <!-- FORMULAIRE DE PUBLICATION -->
+            <div class="card">
+                <textarea id="post-caption" rows="3" placeholder="Exprimez-vous sur Guinée Web..."></textarea>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                    <label class="file-input-label">
+                        📷 Photo / Vidéo
+                        <input type="file" id="post-file" accept="image/*,video/*" style="display:none;">
+                    </label>
+                    <span id="file-name-display" style="font-size:11px; color:var(--text-secondary);"></span>
+                    <button class="btn-primary" style="width:auto; margin-top:0; padding:8px 18px;" onclick="createPost()">Publier</button>
+                </div>
+            </div>
+
+            <!-- FIL D'ACTUALITÉ -->
+            <div id="posts-feed"></div>
+
+        </div>
+
     </div>
-  </div>
-  <script>
-    const data=[['Riz local','25 000 GNF','🍚','Produit local'],['Électricien','Disponible','🔧','Professionnel'],['Restaurant','À partir de 20 000 GNF','🍲','Service local'],['Pharmacie','À proximité','💊','Service essentiel'],['Garage','Disponible','🚗','Réparation'],['Livraison','Sur demande','🚚','Livraison']];
-    function render(){
-      let q=(document.getElementById('q').value||'').toLowerCase();
-      let a=data.filter(x=>x.join(' ').toLowerCase().includes(q));
-      document.getElementById('count').textContent=a.length+' résultat(s)';
-      document.getElementById('products').innerHTML=a.map(x=>`<article class="card"><div class="pic">${x[2]}</div><h3>${x[0]}</h3><span class="muted">${x[3]}</span><p class="price">${x[1]}</p><button class="primary" onclick="openPay()">Commander</button></article>`).join('')
-    }
-    function openPay(){document.getElementById('modal').classList.add('open')}
-    function closePay(){document.getElementById('modal').classList.remove('open');document.getElementById('result').innerHTML=''}
-    function pay(){
-      let n=Number(document.getElementById('amount').value.replace(/\D/g,''));
-      if(!n)return;
-      let ref='SIM-'+Date.now().toString().slice(-8);
-      document.getElementById('result').innerHTML=`<p style="background:#e8f8ef;color:#08683e;padding:14px;border-radius:13px">✅ Paiement simulé<br>${n.toLocaleString('fr-FR')} GNF<br>Référence : ${ref}<br><small>Aucun argent réel n'a été transféré.</small></p>`
-    }
-    render();
-  </script>
+
+    <script>
+        // CONFIGURATION SUPABASE
+        const SUPABASE_URL = "https://llmftxuasvysawaazedm.supabase.co"; 
+        const SUPABASE_KEY = "REMPLACE_PAR_TA_CLE_ANON_PUBLIC"; 
+
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let isSignupMode = false;
+        let activeView = 'feed';
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) {
+                currentUser = user;
+                showAppUI();
+            } else {
+                showAuthUI();
+            }
+
+            document.getElementById('post-file').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                document.getElementById('file-name-display').innerText = file ? file.name : '';
+            });
+        });
+
+        function showAuthUI() {
+            document.getElementById('auth-view').classList.remove('hidden');
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('nav-actions').classList.add('hidden');
+        }
+
+        function showAppUI() {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+            document.getElementById('nav-actions').classList.remove('hidden');
+            loadUserProfile();
+            loadPosts();
+        }
+
+        function toggleAuthMode() {
+            isSignupMode = !isSignupMode;
+            document.getElementById('signup-extra').classList.toggle('hidden', !isSignupMode);
+            document.getElementById('btn-login').style.display = isSignupMode ? 'none' : 'block';
+            document.getElementById('btn-signup').style.display = isSignupMode ? 'block' : 'none';
+            document.getElementById('toggle-auth-msg').innerText = isSignupMode ? "Déjà un compte ? Se connecter" : "Pas encore de compte ? S'inscrire";
+        }
+
+        async function login() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert("Erreur : " + error.message);
+            else { currentUser = data.user; showAppUI(); }
+        }
+
+        async function signup() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const prenom = document.getElementById('auth-prenom').value;
+            const nom = document.getElementById('auth-nom').value;
+
+            const { data, error } = await _supabase.auth.signUp({ email, password });
+            if (error) { alert("Erreur : " + error.message); return; }
+
+            if (data.user) {
+                await _supabase.from('profiles').insert([{ id: data.user.id, prenom, nom }]);
+                currentUser = data.user;
+                showAppUI();
+            }
+        }
+
+        async function logout() {
+            await _supabase.auth.signOut();
+            location.reload();
+        }
+
+        function showView(view) {
+            activeView = view;
+            document.getElementById('tab-feed').classList.toggle('active', view === 'feed');
+            document.getElementById('tab-profile').classList.toggle('active', view === 'profile');
+            document.getElementById('profile-view').classList.toggle('hidden', view !== 'profile');
+            loadPosts();
+        }
+
+        async function loadUserProfile() {
+            const { data: profile } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+            if (profile) {
+                document.getElementById('profile-name').innerText = `${profile.prenom || ''} ${profile.nom || ''}`;
+                document.getElementById('profile-bio').innerText = profile.bio || "Aucune bio renseignée.";
+            }
+        }
+
+        function toggleEditProfile() {
+            document.getElementById('edit-profile-form').classList.toggle('hidden');
+        }
+
+        async function saveProfile() {
+            const prenom = document.getElementById('edit-prenom').value;
+            const nom = document.getElementById('edit-nom').value;
+            const bio = document.getElementById('edit-bio').value;
+
+            const { error } = await _supabase.from('profiles').upsert({ id: currentUser.id, prenom, nom, bio });
+            if (!error) { toggleEditProfile(); loadUserProfile(); }
+        }
+
+        async function createPost() {
+            const caption = document.getElementById('post-caption').value;
+            const fileInput = document.getElementById('post-file');
+            const file = fileInput.files[0];
+
+            if (!caption && !file) return alert("Écrivez du texte ou ajoutez un fichier.");
+
+            let mediaUrl = null;
+            let contentType = 'text';
+
+            if (file) {
+                const fileName = `${Date.now()}_${file.name}`;
+                const { error: uploadError } = await _supabase.storage.from('media').upload(fileName, file);
+                if (uploadError) return alert("Erreur lors de l'envoi du fichier : " + uploadError.message);
+
+                const { data } = _supabase.storage.from('media').getPublicUrl(fileName);
+                mediaUrl = data.publicUrl;
+                contentType = file.type.startsWith('video') ? 'video' : 'image';
+            }
+
+            const { error } = await _supabase.from('posts').insert([{
+                user_id: currentUser.id,
+                caption,
+                media_url: mediaUrl,
+                content_type: contentType
+            }]);
+
+            if (!error) {
+                document.getElementById('post-caption').value = '';
+                fileInput.value = '';
+                document.getElementById('file-name-display').innerText = '';
+                loadPosts();
+            }
+        }
+
+        async function loadPosts() {
+            const feedContainer = document.getElementById('posts-feed');
+            feedContainer.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-secondary);">Chargement des publications...</p>';
+
+            let query = _supabase.from('posts').select('*, profiles(*), likes(*), comments(*)').order('created_at', { ascending: false });
+            if (activeView === 'profile') query = query.eq('user_id', currentUser.id);
+
+            const { data: posts, error } = await query;
+            if (error) { feedContainer.innerHTML = '<p style="text-align:center; padding:20px;">Erreur lors du chargement.</p>'; return; }
+
+            feedContainer.innerHTML = '';
+            if (posts.length === 0) {
+                feedContainer.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-secondary);">Aucune publication pour le moment.</p>';
+                return;
+            }
+
+            posts.forEach(post => renderPostCard(post, feedContainer));
+        }
+
+        function renderPostCard(post, container) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const isLiked = post.likes ? post.likes.some(l => l.user_id === currentUser.id) : false;
+            const authorName = post.profiles ? `${post.profiles.prenom || ''} ${post.profiles.nom || ''}` : "Utilisateur";
+
+            let mediaTag = '';
+            if (post.media_url) {
+                mediaTag = post.content_type === 'video' 
+                    ? `<video src="${post.media_url}" controls class="post-media"></video>`
+                    : `<img src="${post.media_url}" class="post-media" alt="Media">`;
+            }
+
+            card.innerHTML = `
+                <div class="post-author">
+                    <img class="avatar" src="https://via.placeholder.com/44" alt="Avatar">
+                    <div style="display:flex; flex-direction:column;">
+                        <span class="post-author-name">${authorName}</span>
+                        <span class="post-time">${new Date(post.created_at).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                </div>
+                <div class="post-caption">${post.caption || ''}</div>
+                ${mediaTag}
+                
+                <div class="post-actions">
+                    <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(${post.id}, ${isLiked})">
+                        👍 J'aime (${post.likes ? post.likes.length : 0})
+                    </button>
+                    <button class="action-btn" onclick="toggleCommentsSection(${post.id})">
+                        💬 Commenter (${post.comments ? post.comments.length : 0})
+                    </button>
+                </div>
+
+                <div id="comments-section-${post.id}" class="comments-container">
+                    <div id="comments-list-${post.id}">
+                        ${post.comments ? post.comments.map(c => `<div class="comment-item">${c.content}</div>`).join('') : ''}
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <input type="text" id="comment-input-${post.id}" placeholder="Écrire un commentaire...">
+                        <button class="btn-primary" style="width:auto; margin-top:0; padding:6px 14px; font-size:13px;" onclick="addComment(${post.id})">Envoyer</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        async function toggleLike(postId, isLiked) {
+            if (isLiked) {
+                await _supabase.from('likes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+            } else {
+                await _supabase.from('likes').insert([{ post_id: postId, user_id: currentUser.id }]);
+            }
+            loadPosts();
+        }
+
+        function toggleCommentsSection(postId) {
+            const section = document.getElementById(`comments-section-${postId}`);
+            section.style.display = section.style.display === 'block' ? 'none' : 'block';
+        }
+
+        async function addComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (!input.value) return;
+
+            await _supabase.from('comments').insert([{ post_id: postId, user_id: currentUser.id, content: input.value }]);
+            input.value = '';
+            loadPosts();
+        }
+    </script>
 </body>
 </html>
